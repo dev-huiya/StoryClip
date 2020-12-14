@@ -30,7 +30,7 @@ public class User {
     private String email;
 
     @Column(length = 65, nullable = false)
-    @JsonIgnore
+    @JsonIgnore // Controller에서 값 자동 리턴시 Json에 포함되지 않도록 예외처리
     private String password;
 
     @Column(length = 20, nullable = false)
