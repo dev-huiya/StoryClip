@@ -1,21 +1,28 @@
 package io.storyclip.web.Restfull;
 
+import io.storyclip.web.Common.Entity;
+import io.storyclip.web.Entity.Result;
 import io.storyclip.web.Entity.User;
 import io.storyclip.web.Repository.UserRepository;
+import io.storyclip.web.Type.Auth;
 import io.storyclip.web.Utils.SHA256Util;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
 
+@CrossOrigin //(origins="http://localhost")
 @RestController
 @RequestMapping(value="/user")
 public class UserController {
-
-    @Autowired
-    UserRepository UserRepo;
+    
+    // Autowired 대신 추천되는 의존성 주입 방식
+    private static UserRepository UserRepo;
+    public UserController(UserRepository UserRepo) {
+        this.UserRepo = UserRepo;
+    }
 
     @RequestMapping(value="/join", method= RequestMethod.POST)
     public User joinUser(String email, String password) {
@@ -40,20 +47,30 @@ public class UserController {
     }
 
     @RequestMapping(value="/login", method= RequestMethod.POST)
-    public User loginUser(String email, String password) {
+    public Result loginUser(String email, String password) {
+        Result result = new Result();
 
-        String salt = UserRepo.findUserByEmail(email);
-        SHA256Util sha256Util = new SHA256Util();
-        User user = UserRepo.getUserByEmailAndPassword(email, sha256Util.encrypt(salt + password));
+        Entity entity = new Entity(UserRepo);
+        User user = entity.getUserbyEmailAndPassword(email, password);
         // 솔트 찾아서 해당 비밀번호로 조회
-        // TODO: 이메일은 Entity에서 암호화하는데 비밀번호는 솔트값 때문에 밖에서 암호화 해서 넘겨줘야되는데 이거 너무 불편함.. 개선 바람.
 
         if(user == null) {
-            return new User();
+            result.setSuccess(false);
+            result.setMessage(Auth.AUTH_WRONG);
+            return result;
         }
 
         user.setLastDate(new Date());
-        return UserRepo.save(user);
+
+        result.setSuccess(true);
+        result.setMessage(Auth.OK);
+        result.setResult(UserRepo.save(user));
+
+        return result;
     }
+
+    // TODO: insert, update, delete에 대한 validation 기능 추가
+    // TODO: intersepter로 JWT 검증 단계 추가
+    // TODO: login에 RSA 키 발급 기능 추가: private key를 aes로 암호화해 넘겼다가 돌아올때 검증
 
 }
