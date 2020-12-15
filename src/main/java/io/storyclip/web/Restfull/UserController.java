@@ -6,11 +6,10 @@ import io.storyclip.web.Entity.User;
 import io.storyclip.web.Repository.UserRepository;
 import io.storyclip.web.Type.Auth;
 import io.storyclip.web.Utils.SHA256Util;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.Date;
 
 @CrossOrigin //(origins="http://localhost")
@@ -47,11 +46,17 @@ public class UserController {
     }
 
     @RequestMapping(value="/login", method= RequestMethod.POST)
-    public Result loginUser(String email, String password) {
+    public Result loginUser(@Valid @RequestBody User RequestUser, BindingResult bindingResult) {
         Result result = new Result();
 
+        if(bindingResult.hasErrors()){
+            result.setSuccess(false);
+            result.setMessage(Auth.AUTH_WRONG);
+            return result;
+        }
+
         Entity entity = new Entity(UserRepo);
-        User user = entity.getUserbyEmailAndPassword(email, password);
+        User user = entity.getUserbyEmailAndPassword(RequestUser.getEmail(), RequestUser.getPassword());
         // 솔트 찾아서 해당 비밀번호로 조회
 
         if(user == null) {
@@ -69,7 +74,6 @@ public class UserController {
         return result;
     }
 
-    // TODO: insert, update, delete에 대한 validation 기능 추가
     // TODO: intersepter로 JWT 검증 단계 추가
     // TODO: login에 RSA 키 발급 기능 추가: private key를 aes로 암호화해 넘겼다가 돌아올때 검증
 
