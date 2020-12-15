@@ -1,13 +1,12 @@
 package io.storyclip.web.Entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
+import javax.validation.constraints.*;
 import java.util.Date;
 
 //@NoArgsConstructor(access= AccessLevel.PROTECTED)
@@ -19,18 +18,23 @@ import java.util.Date;
 @Entity
 @Table(name = "user")
 @ToString(exclude = "password")
+@Data
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // AUTO_INCREMENT
+    @JsonIgnore
     private Integer UserId;
 
     @Column(length = 100, nullable = false)
     @Convert(converter = AESCryptConverter.class) // 암호화
+    @Email
+    @NotNull
     private String email;
 
     @Column(length = 65, nullable = false)
-    @JsonIgnore // Controller에서 값 자동 리턴시 Json에 포함되지 않도록 예외처리
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY) // Controller에서 값 자동 리턴시 Json에 포함되지 않도록 예외처리
+    @NotNull
     private String password;
 
     @Column(length = 20, nullable = false)
@@ -48,11 +52,15 @@ public class User {
     private Date lastDate;
 
     @Column(length = 255, nullable = true)
+    @Convert(converter = AESCryptConverter.class) // 암호화
     private String profile;
 
     @Column(length = 255, nullable = true)
+    @Convert(converter = AESCryptConverter.class) // 암호화
     private String kakaoAccountId;
 
+    @JsonIgnore
     @Column(length = 4096, nullable = true)
+    @Convert(converter = AESCryptConverter.class) // 암호화
     private String privateKey;
 }
