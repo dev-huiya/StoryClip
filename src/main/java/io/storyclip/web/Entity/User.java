@@ -24,7 +24,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // AUTO_INCREMENT
     @JsonIgnore
-    private Integer UserId;
+    private Integer userId;
 
     @Column(length = 100, nullable = false)
     @Convert(converter = AESCryptConverter.class) // 암호화
@@ -50,6 +50,10 @@ public class User {
     @Column(nullable = true) // 다른 정보 업데이트 시 이 컬럼이 업데이트 되지 않도록 널 허용
     @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss.SSS", timezone="Asia/Seoul")
     private Date lastDate;
+
+    @Column(length = 255, nullable = true)
+    @Convert(converter = AESCryptConverter.class) // 암호화
+    private String penName;
 
     @Column(length = 255, nullable = true)
     @Convert(converter = AESCryptConverter.class) // 암호화
