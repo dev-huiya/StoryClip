@@ -108,6 +108,7 @@ public class UserController {
         }
 
         // TODO: 이미지 뷰 페이지 (JWT 이후)
+        // TODO: 이미지 복호화 테스트
 
         result.setSuccess(true);
         result.setMessage(Type.OK);
