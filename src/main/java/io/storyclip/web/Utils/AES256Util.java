@@ -1,17 +1,37 @@
 package io.storyclip.web.Utils;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
+
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.security.Key;
 import java.util.Base64;
 
+@Component
 public class AES256Util {
     private static final String ALGORITHM = "AES/CBC/PKCS5Padding";
-    private static final byte[] KEY = "{ENCRYPT_KEY}".getBytes();
-    private static final byte[] IV = "{ENCRYPT_IV}".getBytes();
+    private static byte[] KEY;
+    private static byte[] IV;
+
+    @Value("${storyClip.AES-key}")
+    public void setKEY(String key) {
+        KEY = key.getBytes();
+    }
+
+    @Value("${storyClip.AES-iv}")
+    public void setIV(String iv) { IV = iv.getBytes(); }
 
     public String encrypt(String planText) {
+        if(planText == null || planText == "") {
+            return planText;
+        }
+
         Key key = new SecretKeySpec(KEY, "AES");
         try {
             Cipher cipher = Cipher.getInstance(ALGORITHM);
@@ -23,6 +43,10 @@ public class AES256Util {
     }
 
     public String decrypt(String encryptedText) {
+        if(encryptedText == null || encryptedText == "") {
+            return encryptedText;
+        }
+
         Key key = new SecretKeySpec(KEY, "AES");
         try {
             Cipher cipher = Cipher.getInstance(ALGORITHM);

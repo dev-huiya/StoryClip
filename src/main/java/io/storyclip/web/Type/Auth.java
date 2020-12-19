@@ -42,6 +42,21 @@ public enum Auth {
     AUTH_REQURED,
 
     /**
+     * 계정정보 중복됨
+     */
+    JOIN_DUPLICATE,
+
+    /**
+     * 캡챠 토큰 없음
+     */
+    CAPTCHA_EMPTY,
+
+    /**
+     * 캡챠 실패
+     */
+    CAPTCHA_FAIL,
+
+    /**
      * 성공
      */
     OK
