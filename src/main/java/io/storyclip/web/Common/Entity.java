@@ -13,8 +13,16 @@ public class Entity {
     }
 
     public User getUserbyEmailAndPassword(String email, String password) {
-        String salt = UserRepo.findUserByEmail(email);
+        String salt = UserRepo.findSaltByEmail(email);
         SHA256Util sha256Util = new SHA256Util();
         return UserRepo.getUserByEmailAndPassword(email, sha256Util.encrypt(salt + password));
+    }
+
+    public boolean emailCheck(String email) {
+        Integer count = 1;
+        if(email != null && email != "") {
+            count = UserRepo.countByEmail(email);
+        }
+        return count <= 0 ? true : false;
     }
 }

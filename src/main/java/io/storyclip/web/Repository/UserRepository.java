@@ -7,7 +7,9 @@ import org.springframework.data.jpa.repository.Query;
 public interface UserRepository extends JpaRepository<User, Integer> {
 
     @Query(value="SELECT salt FROM User WHERE email = :email")
-    public String findUserByEmail(String email);
+    public String findSaltByEmail(String email);
+
+    public Integer countByEmail(String email);
 
     public User getUserByEmailAndPassword(String email, String saltedPassword);
 }
