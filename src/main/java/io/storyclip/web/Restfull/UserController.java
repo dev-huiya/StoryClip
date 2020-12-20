@@ -107,9 +107,6 @@ public class UserController {
             UserRepo.save(user);
         }
 
-        // TODO: 이미지 뷰 페이지 (JWT 이후)
-        // TODO: 이미지 복호화 테스트
-
         result.setSuccess(true);
         result.setMessage(Type.OK);
 
@@ -119,6 +116,10 @@ public class UserController {
 
         return result;
     }
+
+
+    // TODO: intersepter로 JWT 검증 단계 추가
+    // TODO: login에 RSA 키 발급 기능 추가: private key를 aes로 암호화해 넘겼다가 돌아올때 검증
 
     // ############################# 이 밑은 테스트 코드
 
@@ -194,9 +195,6 @@ public class UserController {
         return result;
     }
 
-    // TODO: intersepter로 JWT 검증 단계 추가
-    // TODO: login에 RSA 키 발급 기능 추가: private key를 aes로 암호화해 넘겼다가 돌아올때 검증
-
     @RequestMapping(value="/test")
     public Result test() {
         Result result = new Result();
@@ -210,7 +208,6 @@ public class UserController {
             String value = props.getProperty(key);
             System.out.println(key + "=" + value);
         }
-
 
         return result;
     }
