@@ -62,16 +62,19 @@
             <groupId>com.konghq</groupId>
             <artifactId>unirest-java</artifactId>
             <version>3.11.06</version>
-            <scope>provided</scope>
         </dependency>
 
     </dependencies>
 
     <build>
+        <finalName>ROOT</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <includeSystemScope>true</includeSystemScope>
+                </configuration>
             </plugin>
         </plugins>
     </build>
