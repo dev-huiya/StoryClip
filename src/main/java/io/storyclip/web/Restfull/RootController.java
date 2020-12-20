@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 
-@CrossOrigin
 @RestController
 @RequestMapping(value="/")
 public class RootController {

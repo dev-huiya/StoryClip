@@ -22,7 +22,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Properties;
 
-@CrossOrigin //(origins="http://localhost")
 @RestController
 @RequestMapping(value="/account")
 public class UserController {
