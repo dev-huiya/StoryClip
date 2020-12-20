@@ -1,10 +1,8 @@
 package io.storyclip.web.Restfull;
 
 import io.storyclip.web.Common.FileManager;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value="/images")
 public class FileController {
 
+    @Cacheable("images")
     @RequestMapping(value="/{hash}")
     public ResponseEntity<byte[]> getImage(@PathVariable String hash){
         // TODO: JWT 검증을 통해 userId 가져와야 함.
@@ -28,6 +27,8 @@ public class FileController {
 
         final HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.IMAGE_PNG);
+        headers.setCacheControl("must-revalidate");
+        headers.setAccessControlMaxAge(24 * 60 * 1000);
 
         return new ResponseEntity<>(file, headers, HttpStatus.OK);
     }
