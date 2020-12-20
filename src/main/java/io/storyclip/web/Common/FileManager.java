@@ -10,6 +10,8 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.DigestInputStream;
 import java.security.Key;
 import java.security.MessageDigest;
@@ -18,6 +20,11 @@ import java.util.Base64;
 @Component
 public class FileManager {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    /**
+     * 파일 저장 base 경로
+     */
+    private static String FILE_DIR = System.getProperty("user.dir") + File.separator + "FILES";
     
     private static final String ALGORITHM = "AES/CBC/PKCS5Padding";
     private static byte[] KEY;
@@ -64,6 +71,28 @@ public class FileManager {
     }
 
     /**
+     * 실제 파일 복호화
+     * @param file 파일 경로
+     * @return
+     */
+    private byte[] decryptFile(File file) {
+        if(!file.exists()) {
+            return null;
+        }
+
+        Key key = new SecretKeySpec(KEY, "AES");
+        try {
+            byte[] fileBytes = Files.readAllBytes(file.toPath());
+
+            Cipher cipher = Cipher.getInstance(ALGORITHM);
+            cipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(IV));
+            return cipher.doFinal(Base64.getDecoder().decode(fileBytes));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
      * SHA-256 파일 체크썸 구하기
      * @param file 파일 객체
      * @return hash 값
@@ -96,9 +125,7 @@ public class FileManager {
      */
     public String save(Integer userId, MultipartFile file) {
         String hash = getChecksum(file);
-        String path = System.getProperty("user.dir") +
-                File.separator + "FILES" +
-                File.separator + Integer.toString(userId);
+        String path = FILE_DIR + File.separator + Integer.toString(userId);
 
         if((new File(path + File.separator + hash)).exists()) {
             // 해시값으로 파일을 저장하기 때문에
@@ -116,5 +143,16 @@ public class FileManager {
         encryptFile(path + File.separator + hash, file);
 
         return hash;
+    }
+
+    /**
+     * 파일 복호화
+     * @param userId 사용자 고유값
+     * @param hash 파일 해시값 (파일 이름)
+     * @return 파일 byte[]
+     */
+    public byte[] get(Integer userId, String hash) {
+        String filepath = FILE_DIR + File.separator + Integer.toString(userId) + File.separator + hash.toLowerCase();
+        return decryptFile(new File(filepath));
     }
 }

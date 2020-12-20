@@ -24,7 +24,7 @@ import java.util.Properties;
 
 @CrossOrigin //(origins="http://localhost")
 @RestController
-@RequestMapping(value="/api")
+@RequestMapping(value="/account")
 public class UserController {
     
     // Autowired 대신 추천되는 의존성 주입 방식
@@ -47,7 +47,7 @@ public class UserController {
         return result;
     }
 
-    @RequestMapping(value="/user/join", method= RequestMethod.POST)
+    @RequestMapping(value="/signup", method= RequestMethod.POST)
     public Result join(
             @RequestPart @RequestParam(required = false) MultipartFile profile,
             @RequestParam(required = false) String email,
@@ -107,14 +107,19 @@ public class UserController {
             UserRepo.save(user);
         }
 
-        // TODO: 이미지 뷰 페이지 (JWT 이후)
-        // TODO: 이미지 복호화 테스트
-
         result.setSuccess(true);
         result.setMessage(Type.OK);
 
+        HashMap<String, Object> hashMap = new HashMap<String, Object>();
+        hashMap.put("join", true);
+        result.setResult(hashMap);
+
         return result;
     }
+
+
+    // TODO: intersepter로 JWT 검증 단계 추가
+    // TODO: login에 RSA 키 발급 기능 추가: private key를 aes로 암호화해 넘겼다가 돌아올때 검증
 
     // ############################# 이 밑은 테스트 코드
 
@@ -190,9 +195,6 @@ public class UserController {
         return result;
     }
 
-    // TODO: intersepter로 JWT 검증 단계 추가
-    // TODO: login에 RSA 키 발급 기능 추가: private key를 aes로 암호화해 넘겼다가 돌아올때 검증
-
     @RequestMapping(value="/test")
     public Result test() {
         Result result = new Result();
@@ -206,7 +208,6 @@ public class UserController {
             String value = props.getProperty(key);
             System.out.println(key + "=" + value);
         }
-
 
         return result;
     }
