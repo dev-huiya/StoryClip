@@ -3,24 +3,22 @@ package io.storyclip.web.Restfull;
 import com.google.gson.JsonObject;
 import io.storyclip.web.Common.Entity;
 import io.storyclip.web.Common.FileManager;
+import io.storyclip.web.Common.JWTManager;
 import io.storyclip.web.Common.Recaptcha;
 import io.storyclip.web.Entity.Result;
 import io.storyclip.web.Entity.User;
 import io.storyclip.web.Repository.UserRepository;
 import io.storyclip.web.Type.Auth;
 import io.storyclip.web.Type.Type;
-import io.storyclip.web.Utils.AES256Util;
 import io.storyclip.web.Utils.SHA256Util;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.io.File;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Properties;
 
 @RestController
 @RequestMapping(value="/account")
@@ -35,24 +33,24 @@ public class UserController {
     @RequestMapping(value="/signup-check/email", method= RequestMethod.GET)
     public Result emailCheck(@RequestParam(required = false) String email) {
         Result result = new Result();
-        HashMap<String, Object> hashMap = new HashMap<String, Object>();
-        Entity entity = new Entity(UserRepo);
 
         result.setSuccess(true);
         result.setMessage(Type.OK);
 
-        hashMap.put("usage", emailCheck(email));
+        HashMap<String, Object> hashMap = new HashMap<String, Object>();
+        hashMap.put("usage", Entity.emailCheck(email));
+
         result.setResult(hashMap);
         return result;
     }
 
     @RequestMapping(value="/signup", method= RequestMethod.POST)
     public Result join(
-            @RequestPart @RequestParam(required = false) MultipartFile profile,
-            @RequestParam(required = false) String email,
-            @RequestParam(required = false) String password,
-            @RequestParam(required = false) String penName,
-            @RequestParam(required = false) String recaptchaToken
+        @RequestPart @RequestParam(required = false) MultipartFile profile,
+        @RequestParam(required = false) String email,
+        @RequestParam(required = false) String password,
+        @RequestParam(required = false) String penName,
+        @RequestParam(required = false) String recaptchaToken
     ) {
         Result result = new Result();
 
@@ -79,8 +77,7 @@ public class UserController {
         }
 
         // 이메일 중복 검증
-        Entity entity = new Entity(UserRepo);
-        if(!entity.emailCheck(email)) {
+        if(!Entity.emailCheck(email)) {
             result.setSuccess(false);
             result.setMessage(Auth.JOIN_DUPLICATE);
             return result;
@@ -100,8 +97,7 @@ public class UserController {
 
         // 프로필 저장
         if(profile != null) {
-            FileManager fileManager = new FileManager();
-            String hash = fileManager.save(user.getUserId(), profile);
+            String hash = FileManager.save(user.getUserId(), profile);
             user.setProfile(hash);
             UserRepo.save(user);
         }
@@ -157,8 +153,7 @@ public class UserController {
         result.setSuccess(true);
         result.setMessage(Auth.OK);
 
-        Entity entity = new Entity(UserRepo);
-        User user = entity.getUserbyEmailAndPassword(RequestUser.getEmail(), RequestUser.getPassword());
+        User user = Entity.getUserbyEmailAndPassword(RequestUser.getEmail(), RequestUser.getPassword());
 
         result.setResult(user);
 

@@ -18,8 +18,7 @@ public class FileController {
         // TODO: JWT 검증을 통해 userId 가져와야 함.
         // return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
 
-        FileManager fileManager = new FileManager();
-        byte[] file = fileManager.get(14, hash);
+        byte[] file = FileManager.get(14, hash);
 
         if(file == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
