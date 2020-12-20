@@ -24,7 +24,7 @@ import java.util.Properties;
 
 @CrossOrigin //(origins="http://localhost")
 @RestController
-@RequestMapping(value="/api")
+@RequestMapping(value="/account")
 public class UserController {
     
     // Autowired 대신 추천되는 의존성 주입 방식
@@ -47,7 +47,7 @@ public class UserController {
         return result;
     }
 
-    @RequestMapping(value="/user/join", method= RequestMethod.POST)
+    @RequestMapping(value="/signup", method= RequestMethod.POST)
     public Result join(
             @RequestPart @RequestParam(required = false) MultipartFile profile,
             @RequestParam(required = false) String email,
@@ -112,6 +112,10 @@ public class UserController {
 
         result.setSuccess(true);
         result.setMessage(Type.OK);
+
+        HashMap<String, Object> hashMap = new HashMap<String, Object>();
+        hashMap.put("join", true);
+        result.setResult(hashMap);
 
         return result;
     }
