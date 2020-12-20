@@ -1,4 +1,4 @@
-package io.storyclip.web.Utils;
+package io.storyclip.web.Encrypt;
 
 import java.security.MessageDigest;
 import java.security.SecureRandom;

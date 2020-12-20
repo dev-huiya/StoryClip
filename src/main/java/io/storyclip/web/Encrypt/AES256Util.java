@@ -1,15 +1,11 @@
-package io.storyclip.web.Utils;
+package io.storyclip.web.Encrypt;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.security.Key;
 import java.util.Base64;
 

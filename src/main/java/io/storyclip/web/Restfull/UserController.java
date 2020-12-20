@@ -1,19 +1,18 @@
 package io.storyclip.web.Restfull;
 
-import com.google.gson.JsonObject;
-import io.storyclip.web.Common.Entity;
-import io.storyclip.web.Common.FileManager;
-import io.storyclip.web.Common.JWTManager;
-import io.storyclip.web.Common.Recaptcha;
+import io.storyclip.web.Common.*;
 import io.storyclip.web.Entity.Result;
+import io.storyclip.web.Entity.Token;
 import io.storyclip.web.Entity.User;
 import io.storyclip.web.Repository.UserRepository;
 import io.storyclip.web.Type.Auth;
 import io.storyclip.web.Type.Type;
-import io.storyclip.web.Utils.SHA256Util;
+import io.storyclip.web.Encrypt.SHA256Util;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import ua_parser.Client;
+import ua_parser.Parser;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -38,7 +37,7 @@ public class UserController {
         result.setMessage(Type.OK);
 
         HashMap<String, Object> hashMap = new HashMap<String, Object>();
-        hashMap.put("usage", Entity.emailCheck(email));
+        hashMap.put("usage", UserManager.emailCheck(email));
 
         result.setResult(hashMap);
         return result;
@@ -77,7 +76,7 @@ public class UserController {
         }
 
         // 이메일 중복 검증
-        if(!Entity.emailCheck(email)) {
+        if(!UserManager.emailCheck(email)) {
             result.setSuccess(false);
             result.setMessage(Auth.JOIN_DUPLICATE);
             return result;
@@ -112,9 +111,42 @@ public class UserController {
         return result;
     }
 
+    @RequestMapping(value="/signin", method= RequestMethod.POST)
+    public Result login(@Valid @RequestBody User RequestUser, BindingResult bindingResult, HttpServletRequest request) {
+        Result result = new Result();
+
+        if(bindingResult.hasErrors()){
+            result.setSuccess(false);
+            result.setMessage(Auth.AUTH_WRONG);
+            return result;
+        }
+
+        User user = UserManager.getUserbyEmailAndPassword(RequestUser.getEmail(), RequestUser.getPassword());
+        // 솔트 찾아서 해당 비밀번호로 조회
+
+        if(user == null) {
+            result.setSuccess(false);
+            result.setMessage(Auth.AUTH_WRONG);
+            return result;
+        }
+
+        user.setLastDate(new Date());
+        user = UserRepo.save(user);
+
+        result.setSuccess(true);
+        result.setMessage(Auth.OK);
+
+        Token token = JWTManager.create(user, UserAgentParser.getUserAgent(request));
+
+        result.setResult(null);
+
+        return result;
+    }
+
 
     // TODO: intersepter로 JWT 검증 단계 추가
     // TODO: login에 RSA 키 발급 기능 추가: private key를 aes로 암호화해 넘겼다가 돌아올때 검증
+    // TODO: Error page json을 우리 리턴 형식대로 변경해야함.
 
     // ############################# 이 밑은 테스트 코드
 
@@ -153,56 +185,26 @@ public class UserController {
         result.setSuccess(true);
         result.setMessage(Auth.OK);
 
-        User user = Entity.getUserbyEmailAndPassword(RequestUser.getEmail(), RequestUser.getPassword());
+        User user = UserManager.getUserbyEmailAndPassword(RequestUser.getEmail(), RequestUser.getPassword());
 
         result.setResult(user);
 
         return result;
     }
 
-    @RequestMapping(value="/login", method= RequestMethod.POST)
-    public Result loginUser(@Valid @RequestBody User RequestUser, BindingResult bindingResult) {
-        Result result = new Result();
-
-        if(bindingResult.hasErrors()){
-            result.setSuccess(false);
-            result.setMessage(Auth.AUTH_WRONG);
-            return result;
-        }
-
-        Entity entity = new Entity(UserRepo);
-        User user = entity.getUserbyEmailAndPassword(RequestUser.getEmail(), RequestUser.getPassword());
-        // 솔트 찾아서 해당 비밀번호로 조회
-
-        if(user == null) {
-            result.setSuccess(false);
-            result.setMessage(Auth.AUTH_WRONG);
-            return result;
-        }
-
-        user.setLastDate(new Date());
-
-        result.setSuccess(true);
-        result.setMessage(Auth.OK);
-        result.setResult(UserRepo.save(user));
-
-        return result;
-    }
-
     @RequestMapping(value="/test")
-    public Result test() {
+    public Result test(HttpServletRequest req) {
         Result result = new Result();
+
+        String ua = req.getHeader("User-Agent");
+
+        Parser uaParser = new Parser();
+        Client c = uaParser.parse(ua);
 
         result.setSuccess(true);
         result.setMessage(Type.OK);
 
-        Properties props = System.getProperties();
-        for(Enumeration en = props.propertyNames(); en.hasMoreElements();) {
-            String key = (String)en.nextElement();
-            String value = props.getProperty(key);
-            System.out.println(key + "=" + value);
-        }
-
+        result.setResult(UserAgentParser.getUserAgent(req));
         return result;
     }
 
