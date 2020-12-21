@@ -70,9 +70,9 @@ public class JWTManager {
             if(isAutoLogin) {
                 // 자동 로그인이 켜져있으면 refresh_token 발급
 
-                // refresh token 만료시간은 2주로 설정
+                // refresh token 만료시간은 1주로 설정
                 cal.setTime(currentDate);
-                cal.add(Calendar.DATE, 14);
+                cal.add(Calendar.DATE, 7);
                 refreshExpireDate = cal.getTime();
                 refreshToken = createRefreshToken();
             }
