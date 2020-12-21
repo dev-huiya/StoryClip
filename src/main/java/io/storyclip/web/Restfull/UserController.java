@@ -36,7 +36,7 @@ public class UserController {
         result.setSuccess(true);
         result.setMessage(Type.OK);
 
-        HashMap<String, Object> hashMap = new HashMap<String, Object>();
+        HashMap<String, Object> hashMap = new HashMap<>();
         hashMap.put("usage", UserManager.emailCheck(email));
 
         result.setResult(hashMap);
@@ -83,14 +83,13 @@ public class UserController {
         }
     
         // 솔트 넣는건 수동임
-        SHA256Util sha256Util = new SHA256Util();
-        String salt = sha256Util.getSalt();
+        String salt = SHA256Util.getSalt(32);
 
         // 유저 생성
         User user = new User();
         user.setEmail(email);
         user.setPenName(penName);
-        user.setPassword(sha256Util.encrypt(salt + password));
+        user.setPassword(SHA256Util.encrypt(salt + password));
         user.setSalt(salt);
         user = UserRepo.save(user);
 
@@ -104,7 +103,7 @@ public class UserController {
         result.setSuccess(true);
         result.setMessage(Type.OK);
 
-        HashMap<String, Object> hashMap = new HashMap<String, Object>();
+        HashMap<String, Object> hashMap = new HashMap<>();
         hashMap.put("join", true);
         result.setResult(hashMap);
 
@@ -136,7 +135,7 @@ public class UserController {
         result.setSuccess(true);
         result.setMessage(Auth.OK);
 
-        Token token = JWTManager.create(user, UserAgentParser.getUserAgent(request));
+        Token token = JWTManager.create(user, UserAgentParser.getUserAgent(request), true);
 
         if(token == null) {
             // 토큰이 생성되지 못했음.
@@ -162,10 +161,9 @@ public class UserController {
         User user = new User();
         user.setEmail(email); // Entity 내부에서 암호화
 
-        SHA256Util sha256Util = new SHA256Util();
-        String salt = sha256Util.getSalt();
+        String salt = SHA256Util.getSalt(32);
 
-        user.setPassword(sha256Util.encrypt(salt + password));
+        user.setPassword(SHA256Util.encrypt(salt + password));
         user.setSalt(salt);
         return UserRepo.save(user);
     }
@@ -202,11 +200,6 @@ public class UserController {
     @RequestMapping(value="/test")
     public Result test(HttpServletRequest req) {
         Result result = new Result();
-
-        String ua = req.getHeader("User-Agent");
-
-        Parser uaParser = new Parser();
-        Client c = uaParser.parse(ua);
 
         result.setSuccess(true);
         result.setMessage(Type.OK);
