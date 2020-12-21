@@ -17,5 +17,5 @@ public class Result {
         this.resultData = resultData;
     }
 
-    public Object getResult() { return this.resultData; }
+//    public Object getResult() { return this.resultData; }
 }

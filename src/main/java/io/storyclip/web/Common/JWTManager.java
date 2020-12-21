@@ -3,8 +3,7 @@ package io.storyclip.web.Common;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTCreationException;
-import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.*;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import io.storyclip.web.Encrypt.AES256Util;
 import io.storyclip.web.Encrypt.RSAUtils;
@@ -93,7 +92,7 @@ public class JWTManager {
             String tokenStr = JWT.create()
                     .withIssuer("api.storyclip.io") // 토큰 발급자
                     .withAudience("storyclip.io") // 토큰 수신자
-//                    .withNotBefore(currentDate) // TODO: NOT_BEFORE 테스트 바람
+                    //.withNotBefore(refreshExpireDate) // 토큰 활성화 되는 시간 (미사용 예정)
                     .withIssuedAt(currentDate) // 토큰 발급시간
                     .withExpiresAt(accessExpireDate) // 토큰 만료시간
                     .withClaim("userInfo", userInfo) // 유저 정보 토큰에 넣기
@@ -137,9 +136,6 @@ public class JWTManager {
         try {
             KeyFactory kf = KeyFactory.getInstance("RSA");
 
-            System.out.println("savedToken.getPublicKey"+savedToken.getPublicKey());
-            System.out.println("savedToken.getPrivateKey"+savedToken.getPrivateKey());
-
             String publicKeyStr = savedToken.getPublicKey().replace("-----BEGIN RSA PUBLIC KEY-----\n", "").replace("\n-----END RSA PUBLIC KEY-----\n", "");
             String privateKeyStr = savedToken.getPrivateKey().replace("-----BEGIN RSA PRIVATE KEY-----\n", "").replace("\n-----END RSA PRIVATE KEY-----\n", "");
 
@@ -162,11 +158,36 @@ public class JWTManager {
             result.setMessage(Auth.OK);
             result.setResult(jwt);
             return result;
-        } catch (JWTVerificationException | NoSuchAlgorithmException | InvalidKeySpecException exception){
-            //Invalid signature/claims
-            exception.printStackTrace();
-            // TODO: 토큰 검증 메소드 추가 및 토큰 검증 실패 유형에 따른 다양한 리턴
-            return null;
+        } catch (NoSuchAlgorithmException exception){
+            // 알고리즘을 찾을 수 없음. 사실상 발생하지 않을 예정인 오류
+            result.setSuccess(false);
+            result.setMessage(Auth.JWT_ALGORITHM_ERROR);
+            result.setResult(null);
+            return result;
+        } catch (InvalidKeySpecException | SignatureVerificationException e) {
+            // 키 불일치 오류
+            result.setSuccess(false);
+            result.setMessage(Auth.JWT_KEY_EMPTY);
+            result.setResult(null);
+            return result;
+        } catch (TokenExpiredException e) {
+            // 토큰 만료 오류
+            result.setSuccess(false);
+            result.setMessage(Auth.JWT_EXPIRED_ERROR);
+            result.setResult(null);
+            return result;
+        } catch (InvalidClaimException e) {
+            // Claim 오류. (ex. 발급자가 일치하지 않음)
+            result.setSuccess(false);
+            result.setMessage(Auth.JWT_INVALID_CLAIM);
+            result.setResult(null);
+            return result;
+        } catch (JWTVerificationException e) {
+            // 그외 다양한 검증 오류
+            result.setSuccess(false);
+            result.setMessage(Auth.JWT_VERIFY_ERROR);
+            result.setResult(null);
+            return result;
         }
     }
 
