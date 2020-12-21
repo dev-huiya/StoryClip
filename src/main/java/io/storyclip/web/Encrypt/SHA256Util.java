@@ -1,4 +1,4 @@
-package io.storyclip.web.Utils;
+package io.storyclip.web.Encrypt;
 
 import java.security.MessageDigest;
 import java.security.SecureRandom;
@@ -6,7 +6,7 @@ import java.util.Base64;
 import java.util.Random;
 
 public class SHA256Util {
-    public String encrypt(String planText) {
+    public static String encrypt(String planText) {
         try{
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             md.update(planText.getBytes());
@@ -33,9 +33,9 @@ public class SHA256Util {
         }
     }
 
-    public String getSalt() {
+    public static String getSalt(Integer length) {
         final Random r = new SecureRandom();
-        byte[] salt = new byte[32];
+        byte[] salt = new byte[length];
         r.nextBytes(salt);
         Base64.Encoder encoder = Base64.getEncoder();
         return new String(encoder.encode(salt));

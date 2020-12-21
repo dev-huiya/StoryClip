@@ -16,4 +16,6 @@ public class Result {
     public void setResult(Object resultData) {
         this.resultData = resultData;
     }
+
+//    public Object getResult() { return this.resultData; }
 }

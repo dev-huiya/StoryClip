@@ -2,14 +2,14 @@ package io.storyclip.web.Type;
 
 public enum Auth {
     /**
-     * JWT 암호화 비밀키가 없음 : 서버 에러
+     * JWT 암호화 키가 없음 : 서버 에러
      */
     JWT_KEY_EMPTY,
 
     /**
-     * JWT 암호화 공용키가 없음 : 서버 에러
+     * JWT 생성 실패 : 서버 에러
      */
-    JWT_PUB_KEY_EMPTY,
+    JWT_ERROR,
 
     /**
      * JWT 만료됨
@@ -22,14 +22,19 @@ public enum Auth {
     JWT_VERIFY_ERROR,
 
     /**
-     * JWT 아직 활성화되지 않음
+     * JWT 아직 활성화되지 않음, jjwt 라이브러리에 명확한 오류 구분자가 없어 제거됨
      */
-    JWT_BEFORE_ERROR,
+    //JWT_BEFORE_ERROR,
 
     /**
-     * JWT가 없음
+     * 올바르지 않은 토큰 정보
      */
-    JWT_EMPTY,
+    JWT_INVALID_CLAIM,
+
+    /**
+     * 지원하지 않는 알고리즘.
+     */
+    JWT_ALGORITHM_ERROR,
 
     /**
      * 잘못된 계정 정보 (아이디 혹은 비밀번호)

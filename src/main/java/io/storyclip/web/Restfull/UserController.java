@@ -1,26 +1,23 @@
 package io.storyclip.web.Restfull;
 
-import com.google.gson.JsonObject;
-import io.storyclip.web.Common.Entity;
-import io.storyclip.web.Common.FileManager;
-import io.storyclip.web.Common.Recaptcha;
+import io.storyclip.web.Common.*;
 import io.storyclip.web.Entity.Result;
+import io.storyclip.web.Entity.Token;
 import io.storyclip.web.Entity.User;
 import io.storyclip.web.Repository.UserRepository;
 import io.storyclip.web.Type.Auth;
 import io.storyclip.web.Type.Type;
-import io.storyclip.web.Utils.AES256Util;
-import io.storyclip.web.Utils.SHA256Util;
+import io.storyclip.web.Encrypt.SHA256Util;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import ua_parser.Client;
+import ua_parser.Parser;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.io.File;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Properties;
 
 @RestController
 @RequestMapping(value="/account")
@@ -35,24 +32,24 @@ public class UserController {
     @RequestMapping(value="/signup-check/email", method= RequestMethod.GET)
     public Result emailCheck(@RequestParam(required = false) String email) {
         Result result = new Result();
-        HashMap<String, Object> hashMap = new HashMap<String, Object>();
-        Entity entity = new Entity(UserRepo);
 
         result.setSuccess(true);
         result.setMessage(Type.OK);
 
-        hashMap.put("usage", emailCheck(email));
+        HashMap<String, Object> hashMap = new HashMap<>();
+        hashMap.put("usage", UserManager.emailCheck(email));
+
         result.setResult(hashMap);
         return result;
     }
 
     @RequestMapping(value="/signup", method= RequestMethod.POST)
     public Result join(
-            @RequestPart @RequestParam(required = false) MultipartFile profile,
-            @RequestParam(required = false) String email,
-            @RequestParam(required = false) String password,
-            @RequestParam(required = false) String penName,
-            @RequestParam(required = false) String recaptchaToken
+        @RequestPart @RequestParam(required = false) MultipartFile profile,
+        @RequestParam(required = false) String email,
+        @RequestParam(required = false) String password,
+        @RequestParam(required = false) String penName,
+        @RequestParam(required = false) String recaptchaToken
     ) {
         Result result = new Result();
 
@@ -79,29 +76,26 @@ public class UserController {
         }
 
         // 이메일 중복 검증
-        Entity entity = new Entity(UserRepo);
-        if(!entity.emailCheck(email)) {
+        if(!UserManager.emailCheck(email)) {
             result.setSuccess(false);
             result.setMessage(Auth.JOIN_DUPLICATE);
             return result;
         }
     
         // 솔트 넣는건 수동임
-        SHA256Util sha256Util = new SHA256Util();
-        String salt = sha256Util.getSalt();
+        String salt = SHA256Util.getSalt(32);
 
         // 유저 생성
         User user = new User();
         user.setEmail(email);
         user.setPenName(penName);
-        user.setPassword(sha256Util.encrypt(salt + password));
+        user.setPassword(SHA256Util.encrypt(salt + password));
         user.setSalt(salt);
         user = UserRepo.save(user);
 
         // 프로필 저장
         if(profile != null) {
-            FileManager fileManager = new FileManager();
-            String hash = fileManager.save(user.getUserId(), profile);
+            String hash = FileManager.save(user.getUserId(), profile);
             user.setProfile(hash);
             UserRepo.save(user);
         }
@@ -109,16 +103,56 @@ public class UserController {
         result.setSuccess(true);
         result.setMessage(Type.OK);
 
-        HashMap<String, Object> hashMap = new HashMap<String, Object>();
+        HashMap<String, Object> hashMap = new HashMap<>();
         hashMap.put("join", true);
         result.setResult(hashMap);
 
         return result;
     }
 
+    @RequestMapping(value="/signin", method= RequestMethod.POST)
+    public Result login(@Valid @RequestBody User RequestUser, BindingResult bindingResult, HttpServletRequest request) {
+        Result result = new Result();
+
+        if(bindingResult.hasErrors()){
+            result.setSuccess(false);
+            result.setMessage(Auth.AUTH_WRONG);
+            return result;
+        }
+
+        User user = UserManager.getUserbyEmailAndPassword(RequestUser.getEmail(), RequestUser.getPassword());
+        // 솔트 찾아서 해당 비밀번호로 조회
+
+        if(user == null) {
+            result.setSuccess(false);
+            result.setMessage(Auth.AUTH_WRONG);
+            return result;
+        }
+
+        user.setLastDate(new Date());
+        user = UserRepo.save(user);
+
+        result.setSuccess(true);
+        result.setMessage(Auth.OK);
+
+        Token token = JWTManager.create(user, UserAgentParser.getUserAgent(request), true);
+
+        if(token == null) {
+            // 토큰이 생성되지 못했음.
+            result.setSuccess(false);
+            result.setMessage(Auth.JWT_ERROR);
+            result.setResult(null);
+            return result;
+        }
+
+        result.setResult(token);
+        return result;
+    }
+
 
     // TODO: intersepter로 JWT 검증 단계 추가
     // TODO: login에 RSA 키 발급 기능 추가: private key를 aes로 암호화해 넘겼다가 돌아올때 검증
+    // TODO: Error page json을 우리 리턴 형식대로 변경해야함.
 
     // ############################# 이 밑은 테스트 코드
 
@@ -127,10 +161,9 @@ public class UserController {
         User user = new User();
         user.setEmail(email); // Entity 내부에서 암호화
 
-        SHA256Util sha256Util = new SHA256Util();
-        String salt = sha256Util.getSalt();
+        String salt = SHA256Util.getSalt(32);
 
-        user.setPassword(sha256Util.encrypt(salt + password));
+        user.setPassword(SHA256Util.encrypt(salt + password));
         user.setSalt(salt);
         return UserRepo.save(user);
     }
@@ -157,57 +190,21 @@ public class UserController {
         result.setSuccess(true);
         result.setMessage(Auth.OK);
 
-        Entity entity = new Entity(UserRepo);
-        User user = entity.getUserbyEmailAndPassword(RequestUser.getEmail(), RequestUser.getPassword());
+        User user = UserManager.getUserbyEmailAndPassword(RequestUser.getEmail(), RequestUser.getPassword());
 
         result.setResult(user);
 
         return result;
     }
 
-    @RequestMapping(value="/login", method= RequestMethod.POST)
-    public Result loginUser(@Valid @RequestBody User RequestUser, BindingResult bindingResult) {
-        Result result = new Result();
-
-        if(bindingResult.hasErrors()){
-            result.setSuccess(false);
-            result.setMessage(Auth.AUTH_WRONG);
-            return result;
-        }
-
-        Entity entity = new Entity(UserRepo);
-        User user = entity.getUserbyEmailAndPassword(RequestUser.getEmail(), RequestUser.getPassword());
-        // 솔트 찾아서 해당 비밀번호로 조회
-
-        if(user == null) {
-            result.setSuccess(false);
-            result.setMessage(Auth.AUTH_WRONG);
-            return result;
-        }
-
-        user.setLastDate(new Date());
-
-        result.setSuccess(true);
-        result.setMessage(Auth.OK);
-        result.setResult(UserRepo.save(user));
-
-        return result;
-    }
-
     @RequestMapping(value="/test")
-    public Result test() {
+    public Result test(HttpServletRequest req) {
         Result result = new Result();
 
         result.setSuccess(true);
         result.setMessage(Type.OK);
 
-        Properties props = System.getProperties();
-        for(Enumeration en = props.propertyNames(); en.hasMoreElements();) {
-            String key = (String)en.nextElement();
-            String value = props.getProperty(key);
-            System.out.println(key + "=" + value);
-        }
-
+        result.setResult(UserAgentParser.getUserAgent(req));
         return result;
     }
 

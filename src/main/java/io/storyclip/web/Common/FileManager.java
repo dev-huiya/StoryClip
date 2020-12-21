@@ -19,7 +19,7 @@ import java.util.Base64;
 
 @Component
 public class FileManager {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static final Logger logger = LoggerFactory.getLogger(FileManager.class.getClass());
 
     /**
      * 파일 저장 base 경로
@@ -45,7 +45,7 @@ public class FileManager {
      * @param filePath 파일 경로
      * @param file 파일 객체
      */
-    private void encryptFile(String filePath, MultipartFile file) {
+    private static void encryptFile(String filePath, MultipartFile file) {
         FileOutputStream lFileOutputStream = null;
 
         Key key = new SecretKeySpec(KEY, "AES");
@@ -75,7 +75,7 @@ public class FileManager {
      * @param file 파일 경로
      * @return
      */
-    private byte[] decryptFile(File file) {
+    private static byte[] decryptFile(File file) {
         if(!file.exists()) {
             return null;
         }
@@ -97,7 +97,7 @@ public class FileManager {
      * @param file 파일 객체
      * @return hash 값
      */
-    public String getChecksum(MultipartFile file) {
+    public static String getChecksum(MultipartFile file) {
         // file hashing with DigestInputStream
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
@@ -112,8 +112,7 @@ public class FileManager {
             }
             return result.toString();
         }catch(Exception e){
-            e.printStackTrace();
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         }
     }
 
@@ -123,7 +122,7 @@ public class FileManager {
      * @param file 업로드된 파일
      * @return 파일 해시 값
      */
-    public String save(Integer userId, MultipartFile file) {
+    public static String save(Integer userId, MultipartFile file) {
         String hash = getChecksum(file);
         String path = FILE_DIR + File.separator + Integer.toString(userId);
 
@@ -151,7 +150,7 @@ public class FileManager {
      * @param hash 파일 해시값 (파일 이름)
      * @return 파일 byte[]
      */
-    public byte[] get(Integer userId, String hash) {
+    public static byte[] get(Integer userId, String hash) {
         String filepath = FILE_DIR + File.separator + Integer.toString(userId) + File.separator + hash.toLowerCase();
         return decryptFile(new File(filepath));
     }

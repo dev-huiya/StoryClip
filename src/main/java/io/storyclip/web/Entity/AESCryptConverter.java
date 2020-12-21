@@ -1,6 +1,6 @@
 package io.storyclip.web.Entity;
 
-import io.storyclip.web.Utils.AES256Util;
+import io.storyclip.web.Encrypt.AES256Util;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Convert;
