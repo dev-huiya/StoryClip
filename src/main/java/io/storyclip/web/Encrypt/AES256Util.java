@@ -23,7 +23,7 @@ public class AES256Util {
     @Value("${storyClip.AES-iv}")
     public void setIV(String iv) { IV = iv.getBytes(); }
 
-    public String encrypt(String planText) {
+    public static String encrypt(String planText) {
         if(planText == null || planText == "") {
             return planText;
         }
@@ -38,7 +38,7 @@ public class AES256Util {
         }
     }
 
-    public String decrypt(String encryptedText) {
+    public static String decrypt(String encryptedText) {
         if(encryptedText == null || encryptedText == "") {
             return encryptedText;
         }

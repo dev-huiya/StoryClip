@@ -138,8 +138,15 @@ public class UserController {
 
         Token token = JWTManager.create(user, UserAgentParser.getUserAgent(request));
 
-        result.setResult(null);
+        if(token == null) {
+            // 토큰이 생성되지 못했음.
+            result.setSuccess(false);
+            result.setMessage(Auth.JWT_ERROR);
+            result.setResult(null);
+            return result;
+        }
 
+        result.setResult(token);
         return result;
     }
 
