@@ -1,17 +1,14 @@
 package io.storyclip.web.Restfull;
 
-import com.auth0.jwt.interfaces.DecodedJWT;
 import io.storyclip.web.Common.JWTManager;
 import io.storyclip.web.Entity.Result;
 import io.storyclip.web.Exception.RequiredAuthException;
 import io.storyclip.web.Repository.TokenRepository;
 import io.storyclip.web.Type.Auth;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping(value="/auth")
@@ -24,22 +21,30 @@ public class AuthController {
     }
 
     @GetMapping(value="/verify")
-    public Result verifyToken(HttpServletRequest request) throws Exception {
+    public Result verifyToken(@RequestHeader("Authorization") String token) throws Exception {
         Result result = new Result();
 
-        String token = request.getHeader("Authorization");
+//        System.out.println(token);
 
-        if(token == null) {
-            throw new RequiredAuthException("Required token");
-        }
+        HashMap<String, Object> info = JWTManager.read(token);
+        // 읽었을때 만료나 일치하지 않는 토큰이 들어올 수가 없음.
+        // 인터셉터에서 이미 한번 검증을 거쳐서 올라오는거라 만료된 토큰을 인터셉터 단에서 걸러버림
+        // 2020-12-22 16:38 hw.kim
+//
+        System.out.println("########## token read test");
+        System.out.println("id: "+info.get("id"));
+        System.out.println("email: "+info.get("email"));
+        System.out.println("penName: "+info.get("penName"));
+        System.out.println("profile: "+info.get("profile"));
+        System.out.println("lastDate: "+info.get("lastDate"));
 
-        token = token.replace("Bearer ", "");
+        System.out.println("refreshToken: "+info.get("refreshToken"));
+        System.out.println("refreshExpireDate: "+info.get("refreshExpireDate"));
 
-        DecodedJWT jwt = JWTManager.verify(token);
 
         result.setSuccess(true);
         result.setMessage(Auth.OK);
-        result.setResult(jwt);
+        result.setResult(info);
         // TODO: 테스트용 메소드라서 사실상 쓸모 없음. 인터셉터로 기능 이전 바람.
 
         return result;

@@ -4,24 +4,21 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.*;
+import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import io.storyclip.web.Encrypt.AES256Util;
 import io.storyclip.web.Encrypt.RSAUtils;
 import io.storyclip.web.Encrypt.SHA256Util;
-import io.storyclip.web.Entity.Result;
 import io.storyclip.web.Entity.Token;
 import io.storyclip.web.Entity.User;
 import io.storyclip.web.Repository.TokenRepository;
-import io.storyclip.web.Type.Auth;
 import org.springframework.stereotype.Component;
 
 import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
@@ -40,6 +37,7 @@ public class JWTManager {
 
     /**
      * 토큰을 생성하고 DB에 저장한다.
+     *
      * @param user 유저 정보
      * @param userAgent 토큰 생성을 요청한 유저 에이전트 정보
      * @return Token 객체
@@ -95,7 +93,7 @@ public class JWTManager {
                     //.withNotBefore(refreshExpireDate) // 토큰 활성화 되는 시간 (미사용 예정)
                     .withIssuedAt(currentDate) // 토큰 발급시간
                     .withExpiresAt(accessExpireDate) // 토큰 만료시간
-                    .withClaim("userInfo", userInfo) // 유저 정보 토큰에 넣기
+                    .withClaim("info", userInfo) // 유저 정보 토큰에 넣기
                     .sign(algorithm); // 토큰에 사이닝
 
             // 토큰 정보 디비에 저장 준비
@@ -118,6 +116,7 @@ public class JWTManager {
 
     /**
      * 키를 DB에서 불러와 토큰을 검증한다.
+     *
      * @param token 토큰
      * @return
      */
@@ -147,10 +146,15 @@ public class JWTManager {
                 .withIssuer("api.storyclip.io")
                 .build(); //Reusable verifier instance
 
-        DecodedJWT jwt = verifier.verify(token);
-        return jwt;
+        return verifier.verify(token);
     }
 
+    /**
+     * 갱신 토큰 생성.
+     * 토큰 자체는 랜덤 문자열이고, DB에 저장해야 사용가능함.
+     *
+     * @return 랜덤한 문자열.
+     */
     public static String createRefreshToken() {
         String random = SHA256Util.getSalt(20);
         Token result = TokenRepo.findTokenByRefreshToken(random);
@@ -160,5 +164,23 @@ public class JWTManager {
         } else {
             return random;
         }
+    }
+
+    /**
+     * 토큰에서 데이터를 불러온다.
+     *
+     * @param token Header로 전달된 JWT token
+     * @return 토큰에 담겨있는 데이터 (userInfo)
+     * @throws Exception
+     */
+    public static HashMap<String, Object> read(String token) throws Exception {
+        HashMap<String, Object> info = null;
+
+        Claim jws = verify(token.replace("Bearer ", "")).getClaim("info");
+        if(jws != null) {
+            info = (HashMap<String, Object>) jws.asMap();
+            info.put("id", AES256Util.decrypt((String) info.get("id")));
+        }
+        return info;
     }
 }

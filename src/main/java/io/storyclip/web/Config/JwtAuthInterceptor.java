@@ -15,14 +15,10 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
         String token = request.getHeader("Authorization");
-
         if(token == null) {
             throw new RequiredAuthException("Required token");
         }
         token = token.replace(HEADER_TOKEN_KEY, "");
-
-        System.out.println("##### intercepter token: "+token);
-
         JWTManager.verify(token);
 
         return true;
