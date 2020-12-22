@@ -1,11 +1,25 @@
 package io.storyclip.web.Repository;
 
 import io.storyclip.web.Entity.Token;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+
+import javax.transaction.Transactional;
 
 public interface TokenRepository extends JpaRepository<Token, String> {
 
+    @Query(value = "SELECT t FROM Token t WHERE t.refreshToken = :refreshToken AND t.refreshExpireDate >= current_timestamp ")
     public Token findTokenByRefreshToken(String refreshToken);
 
+    @Cacheable("tokenKey")
     public Token getTokenByToken(String token);
+
+    @Modifying
+    @Transactional
+    @Query(value="DELETE FROM Token WHERE refreshToken = :refreshToken")
+    @CacheEvict("tokenKey")
+    public void deleteByRefreshToken(String refreshToken);
 }

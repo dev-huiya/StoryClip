@@ -1,12 +1,16 @@
 package io.storyclip.web.Restfull;
 
 import io.storyclip.web.Common.FileManager;
+import io.storyclip.web.Common.JWTManager;
+import io.storyclip.web.Exception.ForbiddenException;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.*;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.HashMap;
 
 @RestController
 @RequestMapping(value="/images")
@@ -14,14 +18,14 @@ public class FileController {
 
     @Cacheable("images")
     @RequestMapping(value="/{hash}")
-    public ResponseEntity<byte[]> getImage(@PathVariable String hash){
-        // TODO: JWT 검증을 통해 userId 가져와야 함.
-        // return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+    public ResponseEntity<byte[]> getImage(@RequestHeader("Authorization") String token, @PathVariable String hash) throws Exception {
 
-        byte[] file = FileManager.get(14, hash);
+        HashMap<String, Object> info = JWTManager.read(token);
+        byte[] file = FileManager.get((Integer) info.get("id") , hash);
 
         if(file == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            // return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            throw new ForbiddenException("Forbidden");
         }
 
         final HttpHeaders headers = new HttpHeaders();

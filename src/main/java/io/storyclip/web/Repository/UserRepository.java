@@ -12,4 +12,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     public Integer countByEmail(String email);
 
     public User getUserByEmailAndPassword(String email, String saltedPassword);
+
+    public User findUserByUserId(Integer userId);
 }

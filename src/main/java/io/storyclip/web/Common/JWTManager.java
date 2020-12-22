@@ -4,26 +4,24 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.*;
+import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import io.storyclip.web.Encrypt.AES256Util;
 import io.storyclip.web.Encrypt.RSAUtils;
 import io.storyclip.web.Encrypt.SHA256Util;
-import io.storyclip.web.Entity.Result;
 import io.storyclip.web.Entity.Token;
 import io.storyclip.web.Entity.User;
 import io.storyclip.web.Repository.TokenRepository;
-import io.storyclip.web.Type.Auth;
 import org.springframework.stereotype.Component;
 
 import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.sql.Timestamp;
 import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
@@ -40,6 +38,7 @@ public class JWTManager {
 
     /**
      * 토큰을 생성하고 DB에 저장한다.
+     *
      * @param user 유저 정보
      * @param userAgent 토큰 생성을 요청한 유저 에이전트 정보
      * @return Token 객체
@@ -70,9 +69,9 @@ public class JWTManager {
             if(isAutoLogin) {
                 // 자동 로그인이 켜져있으면 refresh_token 발급
 
-                // refresh token 만료시간은 2주로 설정
+                // refresh token 만료시간은 1주로 설정
                 cal.setTime(currentDate);
-                cal.add(Calendar.DATE, 14);
+                cal.add(Calendar.DATE, 7);
                 refreshExpireDate = cal.getTime();
                 refreshToken = createRefreshToken();
             }
@@ -82,7 +81,10 @@ public class JWTManager {
             userInfo.put("id", AES256Util.encrypt(Integer.toString(user.getUserId())));
             userInfo.put("email", user.getEmail());
             userInfo.put("penName", user.getPenName());
-            userInfo.put("lastDate", user.getLastDate());
+            userInfo.put("lastDate",
+                    user.getLastDate() instanceof Timestamp
+                        ? new Date(user.getLastDate().getTime())
+                        : user.getLastDate());
             userInfo.put("profile", user.getProfile());
             userInfo.put("refreshToken", refreshToken);
             userInfo.put("refreshExpireDate", refreshExpireDate);
@@ -95,7 +97,7 @@ public class JWTManager {
                     //.withNotBefore(refreshExpireDate) // 토큰 활성화 되는 시간 (미사용 예정)
                     .withIssuedAt(currentDate) // 토큰 발급시간
                     .withExpiresAt(accessExpireDate) // 토큰 만료시간
-                    .withClaim("userInfo", userInfo) // 유저 정보 토큰에 넣기
+                    .withClaim("info", userInfo) // 유저 정보 토큰에 넣기
                     .sign(algorithm); // 토큰에 사이닝
 
             // 토큰 정보 디비에 저장 준비
@@ -118,79 +120,45 @@ public class JWTManager {
 
     /**
      * 키를 DB에서 불러와 토큰을 검증한다.
+     *
      * @param token 토큰
      * @return
      */
-    public static Result verify(String token) {
-        Result result = new Result();
+    public static DecodedJWT verify(String token) throws Exception {
 
         Token savedToken = TokenRepo.getTokenByToken(token);
         if(savedToken == null) {
-            // 디비에 저장된 키가 없으면 false 리턴
-            result.setSuccess(false);
-            result.setMessage(Auth.JWT_KEY_EMPTY);
-            result.setResult(null);
-            return result;
+            // 디비에 저장된 키가 없으면 만료로 판정
+            throw new TokenExpiredException(null);
         }
 
-        try {
-            KeyFactory kf = KeyFactory.getInstance("RSA");
+        KeyFactory kf = KeyFactory.getInstance("RSA");
 
-            String publicKeyStr = savedToken.getPublicKey().replace("-----BEGIN RSA PUBLIC KEY-----\n", "").replace("\n-----END RSA PUBLIC KEY-----\n", "");
-            String privateKeyStr = savedToken.getPrivateKey().replace("-----BEGIN RSA PRIVATE KEY-----\n", "").replace("\n-----END RSA PRIVATE KEY-----\n", "");
+        String publicKeyStr = savedToken.getPublicKey().replace("-----BEGIN RSA PUBLIC KEY-----\n", "").replace("\n-----END RSA PUBLIC KEY-----\n", "");
+        String privateKeyStr = savedToken.getPrivateKey().replace("-----BEGIN RSA PRIVATE KEY-----\n", "").replace("\n-----END RSA PRIVATE KEY-----\n", "");
 
-            // public key 불러오기
-            X509EncodedKeySpec publicSpec = new X509EncodedKeySpec(Base64.getDecoder().decode(publicKeyStr));
-            PublicKey publicKey = kf.generatePublic(publicSpec);
+        // public key 불러오기
+        X509EncodedKeySpec publicSpec = new X509EncodedKeySpec(Base64.getDecoder().decode(publicKeyStr));
+        PublicKey publicKey = kf.generatePublic(publicSpec);
 
-            // private key 불러오기
-            PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(privateKeyStr));
-            PrivateKey privateKey = kf.generatePrivate(spec);
+        // private key 불러오기
+        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(privateKeyStr));
+        PrivateKey privateKey = kf.generatePrivate(spec);
 
-            Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) publicKey, (RSAPrivateKey) privateKey);
-            JWTVerifier verifier = JWT.require(algorithm)
-                    .withIssuer("api.storyclip.io")
-                    .build(); //Reusable verifier instance
+        Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) publicKey, (RSAPrivateKey) privateKey);
+        JWTVerifier verifier = JWT.require(algorithm)
+                .withIssuer("api.storyclip.io")
+                .build(); //Reusable verifier instance
 
-            DecodedJWT jwt = verifier.verify(token);
-
-            result.setSuccess(true);
-            result.setMessage(Auth.OK);
-            result.setResult(jwt);
-            return result;
-        } catch (NoSuchAlgorithmException exception){
-            // 알고리즘을 찾을 수 없음. 사실상 발생하지 않을 예정인 오류
-            result.setSuccess(false);
-            result.setMessage(Auth.JWT_ALGORITHM_ERROR);
-            result.setResult(null);
-            return result;
-        } catch (InvalidKeySpecException | SignatureVerificationException e) {
-            // 키 불일치 오류
-            result.setSuccess(false);
-            result.setMessage(Auth.JWT_KEY_EMPTY);
-            result.setResult(null);
-            return result;
-        } catch (TokenExpiredException e) {
-            // 토큰 만료 오류
-            result.setSuccess(false);
-            result.setMessage(Auth.JWT_EXPIRED_ERROR);
-            result.setResult(null);
-            return result;
-        } catch (InvalidClaimException e) {
-            // Claim 오류. (ex. 발급자가 일치하지 않음)
-            result.setSuccess(false);
-            result.setMessage(Auth.JWT_INVALID_CLAIM);
-            result.setResult(null);
-            return result;
-        } catch (JWTVerificationException e) {
-            // 그외 다양한 검증 오류
-            result.setSuccess(false);
-            result.setMessage(Auth.JWT_VERIFY_ERROR);
-            result.setResult(null);
-            return result;
-        }
+        return verifier.verify(token);
     }
 
+    /**
+     * 갱신 토큰 생성.
+     * 토큰 자체는 랜덤 문자열이고, DB에 저장해야 사용가능함.
+     *
+     * @return 랜덤한 문자열.
+     */
     public static String createRefreshToken() {
         String random = SHA256Util.getSalt(20);
         Token result = TokenRepo.findTokenByRefreshToken(random);
@@ -200,5 +168,23 @@ public class JWTManager {
         } else {
             return random;
         }
+    }
+
+    /**
+     * 토큰에서 데이터를 불러온다.
+     *
+     * @param token Header로 전달된 JWT token
+     * @return 토큰에 담겨있는 데이터 (userInfo)
+     * @throws Exception
+     */
+    public static HashMap<String, Object> read(String token) throws Exception {
+        HashMap<String, Object> info = null;
+
+        Claim jws = verify(token.replace("Bearer ", "")).getClaim("info");
+        if(jws != null) {
+            info = (HashMap<String, Object>) jws.asMap();
+            info.put("id", Integer.parseInt(AES256Util.decrypt((String) info.get("id"))));
+        }
+        return info;
     }
 }
