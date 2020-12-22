@@ -160,7 +160,7 @@ public class JWTManager {
      * @return 랜덤한 문자열.
      */
     public static String createRefreshToken() {
-        String random = SHA256Util.getSalt(20);
+        String random = SHA256Util.createSalt(20);
         Token result = TokenRepo.findTokenByRefreshToken(random);
 
         if(result != null) {

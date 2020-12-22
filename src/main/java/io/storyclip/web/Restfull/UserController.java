@@ -81,7 +81,7 @@ public class UserController {
         }
     
         // 솔트 넣는건 수동임
-        String salt = SHA256Util.getSalt(32);
+        String salt = SHA256Util.createSalt(32);
 
         // 유저 생성
         User user = new User();
