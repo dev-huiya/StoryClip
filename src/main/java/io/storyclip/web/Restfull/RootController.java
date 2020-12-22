@@ -18,13 +18,13 @@ public class RootController {
     @Value("${storyClip.version}")
     private String projectVersion;
 
-    @RequestMapping(value="/")
+    @RequestMapping(value={"/", "/status"})
     public Result index() {
         Result result = new Result();
         result.setSuccess(true);
         result.setMessage(Type.OK);
 
-        HashMap<String, Object> hashMap = new HashMap<String, Object>();
+        HashMap<String, Object> hashMap = new HashMap<>();
         hashMap.put("isServerRun", true);
         hashMap.put("version", projectVersion);
         result.setResult(hashMap);
