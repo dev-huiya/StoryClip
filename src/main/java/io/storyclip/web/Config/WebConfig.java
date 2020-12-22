@@ -17,10 +17,11 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     private static final String[] INTERCEPTOR_WHITE_LIST = {
-            "/", "/status",
-            "/account/signup-check/email",
-            "/account/signup",
-            "/account/signin",
+        "/", "/status",
+        "/account/signup-check/email",
+        "/account/signup",
+        "/account/signin",
+        "/auth/refresh"
     };
 
     @Override

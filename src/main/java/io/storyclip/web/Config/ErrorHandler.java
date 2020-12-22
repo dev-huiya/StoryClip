@@ -6,7 +6,8 @@ import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import io.storyclip.web.Entity.Result;
 import io.storyclip.web.Exception.ForbiddenException;
-import io.storyclip.web.Exception.RequiredAuthException;
+import io.storyclip.web.Exception.AuthRequiredException;
+import io.storyclip.web.Exception.ParamRequiredException;
 import io.storyclip.web.Type.Auth;
 import io.storyclip.web.Type.Http;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,15 @@ import java.security.spec.InvalidKeySpecException;
 
 @RestControllerAdvice
 public class ErrorHandler {
+
+    // 필수 파라매터 누락됨
+    @ExceptionHandler(ParamRequiredException.class)
+    public ResponseEntity<Result> ParamRequired() {
+        Result result = new Result();
+        result.setSuccess(false);
+        result.setMessage(Http.PARAM_REQUIRED);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
 
     // 403 로그인은 되었지만 해당 컨텐츠에 권한 없음 오류
     @ExceptionHandler(ForbiddenException.class)
@@ -40,7 +50,7 @@ public class ErrorHandler {
     }
 
     // 401 토큰 없음 오류
-    @ExceptionHandler(RequiredAuthException.class)
+    @ExceptionHandler(AuthRequiredException.class)
     public ResponseEntity<Result> RequiredAuth() {
         Result result = new Result();
         result.setSuccess(false);

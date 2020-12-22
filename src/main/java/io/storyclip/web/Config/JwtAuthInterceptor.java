@@ -1,7 +1,7 @@
 package io.storyclip.web.Config;
 
 import io.storyclip.web.Common.JWTManager;
-import io.storyclip.web.Exception.RequiredAuthException;
+import io.storyclip.web.Exception.AuthRequiredException;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
@@ -16,7 +16,7 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
 
         String token = request.getHeader("Authorization");
         if(token == null) {
-            throw new RequiredAuthException("Required token");
+            throw new AuthRequiredException("Required token");
         }
         token = token.replace(HEADER_TOKEN_KEY, "");
         JWTManager.verify(token);

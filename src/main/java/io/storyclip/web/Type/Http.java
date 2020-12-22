@@ -20,4 +20,9 @@ public enum Http {
      * 500 Server error
      */
     ERROR,
+
+    /**
+     * 필수값 누락됨
+     */
+    PARAM_REQUIRED,
 }

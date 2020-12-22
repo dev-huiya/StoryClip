@@ -1,13 +1,18 @@
 package io.storyclip.web.Restfull;
 
 import io.storyclip.web.Common.JWTManager;
+import io.storyclip.web.Common.UserAgentParser;
 import io.storyclip.web.Entity.Result;
-import io.storyclip.web.Exception.RequiredAuthException;
+import io.storyclip.web.Entity.Token;
+import io.storyclip.web.Entity.User;
+import io.storyclip.web.Exception.ParamRequiredException;
 import io.storyclip.web.Repository.TokenRepository;
+import io.storyclip.web.Repository.UserRepository;
 import io.storyclip.web.Type.Auth;
+import io.storyclip.web.Type.Http;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
+import java.beans.ConstructorProperties;
 import java.util.HashMap;
 
 @RestController
@@ -16,8 +21,12 @@ public class AuthController {
 
     // Autowired 대신 추천되는 의존성 주입 방식
     private static TokenRepository TokenRepo;
-    public AuthController(TokenRepository TokenRepo) {
+    private static UserRepository UserRepo;
+
+    @ConstructorProperties({"TokenRepository", "UserRepository"})
+    public AuthController(TokenRepository TokenRepo, UserRepository UserRepo) {
         this.TokenRepo = TokenRepo;
+        this.UserRepo = UserRepo;
     }
 
     @GetMapping(value="/verify")
@@ -50,26 +59,40 @@ public class AuthController {
         return result;
     }
 
-    // TODO: refresh_token 으로 access_token 재발급 API 개발 필요
-
     @PutMapping("/refresh")
-    public Result refreshToken(HttpServletRequest request) throws Exception {
+    public Result refreshToken(@RequestBody Token requestToken) throws ParamRequiredException {
         Result result = new Result();
 
-        String token = request.getHeader("Authorization");
-
-        if(token == null) {
-            throw new RequiredAuthException("Required token");
+        String refreshToken = requestToken.getRefreshToken();
+        if(refreshToken == null) {
+            throw new ParamRequiredException("Required params");
         }
 
-        token = token.replace("Bearer ", "");
+        Token token = TokenRepo.findTokenByRefreshToken(refreshToken);
 
-        TokenRepo.deleteByToken(token);
+        if(token == null) {
+            result.setSuccess(false);
+            result.setMessage(Auth.JWT_EXPIRED_ERROR); // refresh_token 만료를 뜻함.
+            return result;
+        }
 
-//        Token tokenObj = TokenRepo.getTokenByToken(token);
-//        System.out.println("tokenObj"+tokenObj);
-//        TokenRepo.delete(tokenObj);
+        User user = UserRepo.findUserByUserId(token.getUserId());
 
+        Token newToken = JWTManager.create(user, token.getBrowser(), true);
+
+        TokenRepo.delete(token);
+
+        if(newToken == null) {
+            // 토큰이 생성되지 못했음.
+            result.setSuccess(false);
+            result.setMessage(Auth.JWT_ERROR);
+            result.setResult(null);
+            return result;
+        }
+
+        result.setSuccess(true);
+        result.setMessage(Auth.OK);
+        result.setResult(newToken);
         return result;
     }
 }

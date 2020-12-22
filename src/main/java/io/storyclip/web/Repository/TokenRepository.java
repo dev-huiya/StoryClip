@@ -11,6 +11,7 @@ import javax.transaction.Transactional;
 
 public interface TokenRepository extends JpaRepository<Token, String> {
 
+    @Query(value = "SELECT t FROM Token t WHERE t.refreshToken = :refreshToken AND t.refreshExpireDate >= current_timestamp ")
     public Token findTokenByRefreshToken(String refreshToken);
 
     @Cacheable("tokenKey")
@@ -18,7 +19,7 @@ public interface TokenRepository extends JpaRepository<Token, String> {
 
     @Modifying
     @Transactional
-    @Query(value="DELETE FROM Token WHERE token = :token")
+    @Query(value="DELETE FROM Token WHERE refreshToken = :refreshToken")
     @CacheEvict("tokenKey")
-    public void deleteByToken(String token);
+    public void deleteByRefreshToken(String refreshToken);
 }

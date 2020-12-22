@@ -21,6 +21,7 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.sql.Timestamp;
 import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
@@ -80,7 +81,10 @@ public class JWTManager {
             userInfo.put("id", AES256Util.encrypt(Integer.toString(user.getUserId())));
             userInfo.put("email", user.getEmail());
             userInfo.put("penName", user.getPenName());
-            userInfo.put("lastDate", user.getLastDate());
+            userInfo.put("lastDate",
+                    user.getLastDate() instanceof Timestamp
+                        ? new Date(user.getLastDate().getTime())
+                        : user.getLastDate());
             userInfo.put("profile", user.getProfile());
             userInfo.put("refreshToken", refreshToken);
             userInfo.put("refreshExpireDate", refreshExpireDate);
