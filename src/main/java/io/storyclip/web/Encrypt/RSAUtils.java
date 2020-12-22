@@ -27,7 +27,7 @@ public class RSAUtils {
      * @return
      */
     public String getPublic() {
-        return "-----BEGIN RSA PUBLIC KEY-----\n" + new String(Base64.getEncoder().encode(publicKey.getEncoded())) + "\n-----END RSA PUBLIC KEY-----\n";
+        return "-----BEGIN PUBLIC KEY-----\n" + new String(Base64.getEncoder().encode(publicKey.getEncoded())) + "\n-----END PUBLIC KEY-----\n";
     }
 
     /**

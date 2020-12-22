@@ -134,7 +134,7 @@ public class JWTManager {
 
         KeyFactory kf = KeyFactory.getInstance("RSA");
 
-        String publicKeyStr = savedToken.getPublicKey().replace("-----BEGIN RSA PUBLIC KEY-----\n", "").replace("\n-----END RSA PUBLIC KEY-----\n", "");
+        String publicKeyStr = savedToken.getPublicKey().replace("-----BEGIN PUBLIC KEY-----\n", "").replace("\n-----END PUBLIC KEY-----\n", "");
         String privateKeyStr = savedToken.getPrivateKey().replace("-----BEGIN RSA PRIVATE KEY-----\n", "").replace("\n-----END RSA PRIVATE KEY-----\n", "");
 
         // public key 불러오기
