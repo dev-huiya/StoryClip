@@ -3,7 +3,6 @@ package io.storyclip.web.Restfull;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import io.storyclip.web.Common.JWTManager;
 import io.storyclip.web.Entity.Result;
-import io.storyclip.web.Entity.Token;
 import io.storyclip.web.Exception.RequiredAuthException;
 import io.storyclip.web.Repository.TokenRepository;
 import io.storyclip.web.Type.Auth;

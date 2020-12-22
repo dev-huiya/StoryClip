@@ -3,9 +3,6 @@ package io.storyclip.web.Restfull;
 import io.storyclip.web.Entity.Result;
 import io.storyclip.web.Type.Type;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.context.annotation.PropertySources;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 

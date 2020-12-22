@@ -3,7 +3,6 @@ package io.storyclip.web.Restfull;
 import io.storyclip.web.Common.FileManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.*;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

@@ -11,8 +11,6 @@ import io.storyclip.web.Encrypt.SHA256Util;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ua_parser.Client;
-import ua_parser.Parser;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -155,47 +153,6 @@ public class UserController {
     // TODO: Error page json을 우리 리턴 형식대로 변경해야함.
 
     // ############################# 이 밑은 테스트 코드
-
-    @RequestMapping(value="/join2", method= RequestMethod.POST)
-    public User joinUser(String email, String password) {
-        User user = new User();
-        user.setEmail(email); // Entity 내부에서 암호화
-
-        String salt = SHA256Util.getSalt(32);
-
-        user.setPassword(SHA256Util.encrypt(salt + password));
-        user.setSalt(salt);
-        return UserRepo.save(user);
-    }
-
-    @RequestMapping(value="/edit", method= RequestMethod.POST)
-    public User editUser(Integer userId, String email, String password, String salt) {
-        User user = UserRepo.getOne(userId);
-        user.setEmail(email);
-        user.setPassword(password);
-        user.setSalt(salt);
-        return UserRepo.save(user);
-    }
-
-    @RequestMapping(value="/info", method= RequestMethod.POST)
-    public Result userInfo(@Valid @RequestBody User RequestUser, BindingResult bindingResult) {
-        Result result = new Result();
-
-        if (bindingResult.hasErrors()) {
-            result.setSuccess(false);
-            result.setMessage(Auth.AUTH_WRONG);
-            return result;
-        }
-
-        result.setSuccess(true);
-        result.setMessage(Auth.OK);
-
-        User user = UserManager.getUserbyEmailAndPassword(RequestUser.getEmail(), RequestUser.getPassword());
-
-        result.setResult(user);
-
-        return result;
-    }
 
     @RequestMapping(value="/test")
     public Result test(HttpServletRequest req) {
