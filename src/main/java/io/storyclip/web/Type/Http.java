@@ -7,6 +7,11 @@ public enum Http {
     OK,
 
     /**
+     * 403 Forbidden
+     */
+    FORBIDDEN,
+
+    /**
      * 404 Not found
      */
     NOT_FOUND,

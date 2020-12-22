@@ -179,7 +179,7 @@ public class JWTManager {
         Claim jws = verify(token.replace("Bearer ", "")).getClaim("info");
         if(jws != null) {
             info = (HashMap<String, Object>) jws.asMap();
-            info.put("id", AES256Util.decrypt((String) info.get("id")));
+            info.put("id", Integer.parseInt(AES256Util.decrypt((String) info.get("id"))));
         }
         return info;
     }

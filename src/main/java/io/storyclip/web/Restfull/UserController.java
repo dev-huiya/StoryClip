@@ -147,10 +147,7 @@ public class UserController {
         return result;
     }
 
-
-    // TODO: intersepter로 JWT 검증 단계 추가
     // TODO: login에 RSA 키 발급 기능 추가: private key를 aes로 암호화해 넘겼다가 돌아올때 검증
-    // TODO: Error page json을 우리 리턴 형식대로 변경해야함.
 
     // ############################# 이 밑은 테스트 코드
 

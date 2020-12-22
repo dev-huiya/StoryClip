@@ -5,6 +5,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import io.storyclip.web.Entity.Result;
+import io.storyclip.web.Exception.ForbiddenException;
 import io.storyclip.web.Exception.RequiredAuthException;
 import io.storyclip.web.Type.Auth;
 import io.storyclip.web.Type.Http;
@@ -20,6 +21,15 @@ import java.security.spec.InvalidKeySpecException;
 @RestControllerAdvice
 public class ErrorHandler {
 
+    // 403 로그인은 되었지만 해당 컨텐츠에 권한 없음 오류
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<Result> Forbidden() {
+        Result result = new Result();
+        result.setSuccess(false);
+        result.setMessage(Http.FORBIDDEN);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(result);
+    }
+
     // 404 Http Error
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<Result> NotFound() {
@@ -29,7 +39,7 @@ public class ErrorHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
     }
 
-    // 토큰 없음 오류
+    // 401 토큰 없음 오류
     @ExceptionHandler(RequiredAuthException.class)
     public ResponseEntity<Result> RequiredAuth() {
         Result result = new Result();
