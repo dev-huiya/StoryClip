@@ -33,11 +33,30 @@ public class SHA256Util {
         }
     }
 
-    public static String getSalt(Integer length) {
+    /**
+     * 솔트를 생성하는 메소드.
+     *
+     * @param length 솔트 길이
+     * @return
+     */
+    public static String createSalt(Integer length) {
         final Random r = new SecureRandom();
         byte[] salt = new byte[length];
         r.nextBytes(salt);
         Base64.Encoder encoder = Base64.getEncoder();
         return new String(encoder.encode(salt));
+    }
+
+    /**
+     * Byte array to HEX
+     *
+     * @param str byte array
+     * @return
+     */
+    public static String byteArrayToHex(byte[] str) {
+        StringBuilder sb = new StringBuilder();
+        for(final byte b: str)
+            sb.append(String.format("%02x", b&0xff));
+        return sb.toString();
     }
 }

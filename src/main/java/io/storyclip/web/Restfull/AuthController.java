@@ -66,6 +66,8 @@ public class AuthController {
         return result;
     }
 
+    // TODO: logout으로 토큰 폐기하는 API 필요함.
+
     // ############################# 이 밑은 테스트 코드
 
     @GetMapping(value="/verify")
