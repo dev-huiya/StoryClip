@@ -121,74 +121,34 @@ public class JWTManager {
      * @param token 토큰
      * @return
      */
-    public static Result verify(String token) {
-        Result result = new Result();
+    public static DecodedJWT verify(String token) throws Exception {
 
         Token savedToken = TokenRepo.getTokenByToken(token);
         if(savedToken == null) {
-            // 디비에 저장된 키가 없으면 false 리턴
-            result.setSuccess(false);
-            result.setMessage(Auth.JWT_KEY_EMPTY);
-            result.setResult(null);
-            return result;
+            // 디비에 저장된 키가 없으면 만료로 판정
+            throw new TokenExpiredException(null);
         }
 
-        try {
-            KeyFactory kf = KeyFactory.getInstance("RSA");
+        KeyFactory kf = KeyFactory.getInstance("RSA");
 
-            String publicKeyStr = savedToken.getPublicKey().replace("-----BEGIN RSA PUBLIC KEY-----\n", "").replace("\n-----END RSA PUBLIC KEY-----\n", "");
-            String privateKeyStr = savedToken.getPrivateKey().replace("-----BEGIN RSA PRIVATE KEY-----\n", "").replace("\n-----END RSA PRIVATE KEY-----\n", "");
+        String publicKeyStr = savedToken.getPublicKey().replace("-----BEGIN RSA PUBLIC KEY-----\n", "").replace("\n-----END RSA PUBLIC KEY-----\n", "");
+        String privateKeyStr = savedToken.getPrivateKey().replace("-----BEGIN RSA PRIVATE KEY-----\n", "").replace("\n-----END RSA PRIVATE KEY-----\n", "");
 
-            // public key 불러오기
-            X509EncodedKeySpec publicSpec = new X509EncodedKeySpec(Base64.getDecoder().decode(publicKeyStr));
-            PublicKey publicKey = kf.generatePublic(publicSpec);
+        // public key 불러오기
+        X509EncodedKeySpec publicSpec = new X509EncodedKeySpec(Base64.getDecoder().decode(publicKeyStr));
+        PublicKey publicKey = kf.generatePublic(publicSpec);
 
-            // private key 불러오기
-            PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(privateKeyStr));
-            PrivateKey privateKey = kf.generatePrivate(spec);
+        // private key 불러오기
+        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(privateKeyStr));
+        PrivateKey privateKey = kf.generatePrivate(spec);
 
-            Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) publicKey, (RSAPrivateKey) privateKey);
-            JWTVerifier verifier = JWT.require(algorithm)
-                    .withIssuer("api.storyclip.io")
-                    .build(); //Reusable verifier instance
+        Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) publicKey, (RSAPrivateKey) privateKey);
+        JWTVerifier verifier = JWT.require(algorithm)
+                .withIssuer("api.storyclip.io")
+                .build(); //Reusable verifier instance
 
-            DecodedJWT jwt = verifier.verify(token);
-
-            result.setSuccess(true);
-            result.setMessage(Auth.OK);
-            result.setResult(jwt);
-            return result;
-        } catch (NoSuchAlgorithmException exception){
-            // 알고리즘을 찾을 수 없음. 사실상 발생하지 않을 예정인 오류
-            result.setSuccess(false);
-            result.setMessage(Auth.JWT_ALGORITHM_ERROR);
-            result.setResult(null);
-            return result;
-        } catch (InvalidKeySpecException | SignatureVerificationException e) {
-            // 키 불일치 오류
-            result.setSuccess(false);
-            result.setMessage(Auth.JWT_KEY_EMPTY);
-            result.setResult(null);
-            return result;
-        } catch (TokenExpiredException e) {
-            // 토큰 만료 오류
-            result.setSuccess(false);
-            result.setMessage(Auth.JWT_EXPIRED_ERROR);
-            result.setResult(null);
-            return result;
-        } catch (InvalidClaimException e) {
-            // Claim 오류. (ex. 발급자가 일치하지 않음)
-            result.setSuccess(false);
-            result.setMessage(Auth.JWT_INVALID_CLAIM);
-            result.setResult(null);
-            return result;
-        } catch (JWTVerificationException e) {
-            // 그외 다양한 검증 오류
-            result.setSuccess(false);
-            result.setMessage(Auth.JWT_VERIFY_ERROR);
-            result.setResult(null);
-            return result;
-        }
+        DecodedJWT jwt = verifier.verify(token);
+        return jwt;
     }
 
     public static String createRefreshToken() {
