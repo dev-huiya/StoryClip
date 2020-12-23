@@ -102,19 +102,45 @@
                 padding: 10px;
                 padding-top: 30px; */
                 width: 100%;
+                overflow: auto;
             }
             content section {
-                border-bottom: 1px solid #EBF1F5;
                 display: flex;
             }
             content section .left-contents {
                 width: 60%;
                 padding: 30px 50px;
+                border-bottom: 1px solid #EBF1F5;
+            }
+            content section .left-contents .method {
+                font-size: 1em;
+                font-weight: 600;
+                margin-left: 0px;
+                background-color: inherit;
+                padding: 0;
+                margin-right: 5px;
+                margin-top: 10px;;
+            }
+            content section .left-contents .method.get {
+                color: #78C99A;
+            }
+            content section .left-contents .method.post {
+                color: #73B1E5;
+            }
+            content section .left-contents .method.put {
+                color: #EEA56F;
+            }
+            content section .left-contents .method.delete {
+                color: #F48A8D;
+            }
+            content section .left-contents .url {
+                font-weight: 300;
             }
             content section .right-contents {
                 width: 40%;
                 padding: 30px 50px;
                 background-color: #232323;
+                border-bottom: 1px solid #333333;
             }
             content section .right-contents .title {
                 font-weight: 300;
@@ -138,6 +164,9 @@
                 border-radius: 5px;
                 background-color: #000;
                 font-size: 0.9em;
+            }
+            pre:not(:last-child) {
+                margin-bottom: 10px;
             }
             div.hide {
                 display: none;
@@ -172,6 +201,50 @@
             div.info-box.error::before {
                 background: #f35555;
             }
+
+            .params-title {
+                border-bottom: 1px solid #555;
+                padding-bottom: 5px;
+                color: #aaa;
+                font-weight: 300;
+            }
+            .params {
+                margin-bottom: 15px;
+            }
+            .param {
+                display: flex;
+                border-bottom: 1px solid #eee;
+                padding: 10px 0;
+            }
+            .left-param {
+                width: 40%;
+                text-align: right;
+                padding-right: 10px;
+            }
+            .right-param {
+                width: 60%;
+                word-break: break-all;
+            }
+            .param-type {
+                font-weight: 300;
+            }
+            .param-name {
+                font-weight: 600;
+            }
+            .param-required {
+                font-size: 0.8em;
+                font-weight: 300;
+                font-style: italic;
+                color: #aaa;
+            }
+            .param-required.true {
+                font-weight: normal;
+                font-style: normal;
+                color: #f25476;
+            }
+            .param-example {
+                font-weight: 300;
+            }
         </style>
 
     </head>
@@ -179,7 +252,10 @@
         <nav>
             <logo>StoryClip API docs</logo>
             <div id="menu-list">
-                <div class="menu-title">시작하며</div>
+                <div class="menu-title">문서</div>
+                <a href="#GettingStarted" class="menu-link" target="_self">
+                    <span class="url">시작하며</span>
+                </a>
                 <a href="#Authentication" class="menu-link" target="_self">
                     <span class="url">인증</span>
                 </a>
@@ -191,6 +267,39 @@
             </div>
         </nav>
         <content>
+            <section id="GettingStarted">
+                <div class="left-contents">
+                    <h2 class="title">시작하며</h2>
+                    <p>StoryClip 프로젝트의 REST API 문서입니다.</p>
+                    <p>아래 문서를 잘 읽고 따라오세요</p>
+                    <div class="info-box error">GET 방식이 아닐 경우 body에 JSON 객체를 담아서 보내야 합니다.</div>
+                </div>
+                <div class="right-contents">
+                    <div class="button">
+                        <button class="title show" data-type="GettingStarted" onclick="Show('GettingStarted', 'response', this)">Response</button>
+                        <button class="title" data-type="GettingStarted" onclick="Show('GettingStarted', 'error', this)">ERROR</button>
+                    </div>
+                    
+                    <div data-url="GettingStarted" data-type="response" class="show">
+                        <pre><code class="http">HTTP/1.1 200 OK
+
+{
+    "success": true,
+    "message": "OK",
+    "resultData": "..."
+}</code></pre>
+                    </div>
+                    <div data-url="GettingStarted" data-type="error" class="hide">
+                        <pre><code class="http">HTTP/1.1 401 Unauthorized
+
+{
+    "success": false,
+    "message": "AUTH_REQURED",
+    "resultData": null
+}</code></pre>
+                    </div>
+                </div>
+            </section>
             <section id="Authentication">
                 <div class="left-contents">
                     <h2 class="title">인증</h2>
@@ -222,9 +331,32 @@
     "resultData": null
 }</code></pre>
                     </div>
+                </div>
+            </section>
+            <section id="Error">
+                <div class="left-contents">
+                    <h2 class="title">에러코드</h2>
+                    <p>API에서 발생하는 에러 코드에 대한 목록입니다.</p>
+                    <p>리턴되는 형식은 오른쪽 포맷으로 리턴됩니다.</p>
+                </div>
+                <div class="right-contents">
+                    <div class="button">
+                        <button class="title show" data-type="Error" onclick="Show('Error', 'error', this)">ERROR</button>
+                    </div>
+                    <div data-url="Error" data-type="error" class="show">
+                        <pre><code class="http">HTTP/1.1 401 Unauthorized
+
+{
+    "success": false,
+    "message": "AUTH_REQURED",
+    "resultData": null
+}</code></pre>
+                    </div>
                     
                 </div>
             </section>
+
+            <div id="auto-contents"></div>
         </content>
     </body>
     <script src="./api.js"></script>
@@ -261,30 +393,94 @@
 
         const setContents = () => {
             let html = Object.keys(apis).map(big => {
-                const bigMenu = `<div class="menu-title">${big}</div>`;
-                const menu = apis[big].map(api => {
+                return apis[big].map(api => {
                     return `
-                        <a href="#${api.url}" class="menu-link" target="_self">
-                            <span class="method ${api.method}">${api.method}</span>
-                            <span class="url">${api.url}</span>
-                        </a>
+                    <section id="${api.url}">
+                        <div class="left-contents">
+                            <h2 class="title">${api.title}</h2>
+                            <div>
+                                <span class="method ${api.method}">${api.method}</span>
+                                <span class="url">${api.url}</span>
+                            </div>
+                            ${api.description.split("\n").map(line=>(
+                                `<p>${line}</p>`
+                            )).join("")}
+                            ${!!api.headers ? (`
+                                <div class="params-title">HTTP 헤더</div>
+                                <div class="params">
+                                ${api.headers.map(header=>(`
+                                    <div class="param">
+                                        <div class="left-param">
+                                            <div>
+                                                <span class="param-type">${header.type}</span>
+                                                <span class="param-name">${header.name}</span>
+                                            </div>
+                                            ${header.required 
+                                                ? `<div class="param-required true">rquired</div>`
+                                                : `<div class="param-required">optional</div>`}
+                                        </div>
+                                        <div class="right-param">
+                                            <div class="param-description">${header.description}</div>
+                                        </div>
+                                    </div>`
+                                )).join("")}
+                                </div>`
+                            ) : ""}
+                            ${!!api.params ? (`
+                                <div class="params-title">파라매터</div>
+                                <div class="params">
+                                ${api.params.map(param=>(`
+                                    <div class="param">
+                                        <div class="left-param">
+                                            <div>
+                                                <span class="param-type">${param.type}</span>
+                                                <span class="param-name">${param.name}</span>
+                                            </div>
+                                            ${param.required 
+                                                ? `<div class="param-required true">rquired</div>`
+                                                : `<div class="param-required">optional</div>`}
+                                        </div>
+                                        <div class="right-param">
+                                            <div class="param-description">${param.description}</div>
+                                        </div>
+                                    </div>`
+                                )).join("")}
+                                </div>`
+                            ) : ""}
+                        </div>
+                        <div class="right-contents">
+                            <div class="button">
+                                <button class="title show" data-type="${api.url}" onclick="Show('${api.url}', 'response', this)">Response</button>
+                                <button class="title" data-type="${api.url}" onclick="Show('${api.url}', 'error', this)">ERROR</button>
+                            </div>
+                            
+                            <div data-url="${api.url}" data-type="response" class="show">
+                                <pre><code class="http">${api.response.success}</code></pre>
+                            </div>
+                            <div data-url="${api.url}" data-type="error" class="hide">
+                                ${api.response.fail.map(fail=>(
+                                    `<pre><code class="http">${fail}</code></pre>`
+                                )).join("")}
+                            </div>
+                        </div>
+                    </section>
                     `;
                 }).join("");
-
-                return bigMenu + menu;
             })
+
+            document.getElementById("auto-contents").innerHTML = html.join("");
         }
 
         const Show = (url, type, _this) => {
-            console.log(this);
-            document.querySelectorAll(`[data-url=${url}]`).forEach(dom=>{
+            console.log(_this);
+            document.querySelectorAll(`[data-url='${url}']`).forEach(dom=>{
                 dom.removeClass('show');
                 dom.addClass('hide')
             })
-            document.querySelector(`[data-url=${url}][data-type=${type}]`).addClass('show');
+            document.querySelector(`[data-url='${url}'][data-type='${type}']`).addClass('show');
 
             // 버튼
-            document.querySelectorAll(`button[data-type=${url}]`).forEach(dom=>{
+            document.querySelectorAll(`button[data-type='${url}']`).forEach(dom=>{
                 dom.removeClass('show');
             })
             _this.addClass('show');
