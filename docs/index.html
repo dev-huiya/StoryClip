@@ -1,0 +1,301 @@
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>API docs</title>
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.4.1/styles/atom-one-dark.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.4.1/highlight.min.js"></script>
+
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
+
+        <style>
+            @font-face {
+                font-family: 'D2Coding';
+                src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_three@1.0/D2Coding.woff') format('woff');
+                font-weight: normal;
+                font-style: normal;
+            }
+            * {
+                margin: 0px; padding: 0px;
+                font-family: 'Noto Sans KR', sans-serif;
+            }
+            body, html {
+                height: 100%;
+            }
+            body {
+                display: flex;
+            }
+            nav {
+                min-width: 300px;
+                background-color: #F5F7F9;
+            }
+            nav logo {
+                display: block;
+                background: rgb(253,110,70);
+                background: linear-gradient(135deg, rgba(253,110,70,1) 0%, rgba(241,80,124,1) 100%);
+                color: #FFF;
+                width: 100%;
+                height: 60px;
+                line-height: 60px;
+                text-align: center;
+                font-size: 1.4em;
+                font-weight: 600;
+            }
+            nav #menu-list {
+                /* padding: 20px 10px; */
+                border-right: 1px solid #EBF1F5;
+                height: calc(100% - 60px);
+                box-sizing: border-box;
+                display: flex;
+                flex-direction: column;
+            }
+            nav #menu-list .menu-title {
+                padding-top: 10px;
+                color: #333;
+                font-weight: 600;
+                font-size: 1.1em;
+                padding-left: 10px;
+            }
+            nav #menu-list .menu-link {
+                text-decoration: none;
+                display: block;
+                color: #555;
+                margin-top: 5px;
+                margin-bottom: 5px;
+                padding-left: 15px;
+                padding-right: 10px;
+            }
+            nav #menu-list .menu-link .url {
+                font-size: 0.9em;
+            }
+            nav #menu-list .menu-link:hover .url {
+                color: #f1507c;
+            }
+            .method {
+                font-size: 0.8em;
+                display: inline-block;
+                line-height: 20px;
+                padding: 0 5px;
+                border-radius: 3px;
+                color: #FFF;
+                font-weight: 300;
+            }
+            .method.get {
+                background-color: #78C99A;
+                margin-left: 20px;
+            }
+            .method.post {
+                background-color: #73B1E5;
+                margin-left: 12px;
+            }
+            .method.put {
+                background-color: #EEA56F;
+                margin-left: 20px;
+            }
+            .method.delete {
+                background-color: #F48A8D;
+            }
+            content {
+                /* width: 1000px;
+                margin: 0 auto;
+                padding: 10px;
+                padding-top: 30px; */
+                width: 100%;
+            }
+            content section {
+                border-bottom: 1px solid #EBF1F5;
+                display: flex;
+            }
+            content section .left-contents {
+                width: 60%;
+                padding: 30px 50px;
+            }
+            content section .right-contents {
+                width: 40%;
+                padding: 30px 50px;
+                background-color: #232323;
+            }
+            content section .right-contents .title {
+                font-weight: 300;
+                color: #FFF;
+            }
+            content section .right-contents button {
+                background: none;
+                border: none;
+                margin-right: 10px;
+                margin-bottom: 10px;
+                cursor: pointer;
+                padding: 8px 15px;
+            }
+            content section .right-contents button:hover, 
+            content section .right-contents button.show {
+                background-color: #ffffff21;
+                border-radius: 3px;
+            }
+            .hljs {
+                padding: 15px;
+                border-radius: 5px;
+                background-color: #000;
+                font-size: 0.9em;
+            }
+            div.hide {
+                display: none;
+            }
+            div.show {
+                display: block;
+            }
+
+
+            p {
+                margin-block-start: 1em;
+                margin-block-end: 1em;
+            }
+
+            div.info-box  {
+                position: relative;
+                border-radius: 5px;
+                padding: 10px 20px;
+            }
+            div.info-box::before {
+                content: "";
+                display: block;
+                position: absolute;
+                top: 0px; left: 0px;
+                height: 100%;
+                width: 3px;
+            }
+
+            div.info-box.error {
+                background: #ffb8b838;
+            }
+            div.info-box.error::before {
+                background: #f35555;
+            }
+        </style>
+
+    </head>
+    <body>
+        <nav>
+            <logo>StoryClip API docs</logo>
+            <div id="menu-list">
+                <div class="menu-title">시작하며</div>
+                <a href="#Authentication" class="menu-link" target="_self">
+                    <span class="url">인증</span>
+                </a>
+                <a href="#Error" class="menu-link" target="_self">
+                    <span class="url">에러코드</span>
+                </a>
+
+                <div id="auto-menu"></div>
+            </div>
+        </nav>
+        <content>
+            <section id="Authentication">
+                <div class="left-contents">
+                    <h2 class="title">인증</h2>
+                    <p>거의 대부분의 API는 JWT 토큰을 이용한 인증을 요구합니다.</p>
+                    <p>JWT 토큰은 로그인을 통해 발급 받을 수 있습니다.</p>
+                    <div class="info-box error">토큰 없이 API 호출시 아무것도 작동하지 않습니다.</div>
+                </div>
+                <div class="right-contents">
+                    <div class="button">
+                        <button class="title show" data-type="Authentication" onclick="Show('Authentication', 'response', this)">Response</button>
+                        <button class="title" data-type="Authentication" onclick="Show('Authentication', 'error', this)">ERROR</button>
+                    </div>
+                    
+                    <div data-url="Authentication" data-type="response" class="show">
+                        <pre><code class="http">HTTP/1.1 200 OK
+
+{
+    "success": true,
+    "message": "OK",
+    "resultData": "..."
+}</code></pre>
+                    </div>
+                    <div data-url="Authentication" data-type="error" class="hide">
+                        <pre><code class="http">HTTP/1.1 401 Unauthorized
+
+{
+    "success": false,
+    "message": "AUTH_REQURED",
+    "resultData": null
+}</code></pre>
+                    </div>
+                    
+                </div>
+            </section>
+        </content>
+    </body>
+    <script src="./api.js"></script>
+    <script>
+        Element.prototype.hasClass = function (_class) {
+            return !!this.className.match(new RegExp('(\\s|^)'+_class+'(\\s|$)'));
+        }
+        Element.prototype.addClass = function (_class) {
+            if (!this.hasClass(_class)) this.className += " "+_class;
+        }
+        Element.prototype.removeClass = function (_class) {
+            var reg = new RegExp('(\\s|^)'+_class+'(\\s|$)');
+            this.className=this.className.replace(reg,' ');
+        }
+    </script>
+    <script>
+        const setNav = () => {
+            let html = Object.keys(apis).map(big => {
+                const bigMenu = `<div class="menu-title">${big}</div>`;
+                const menu = apis[big].map(api => {
+                    return `
+                        <a href="#${api.url}" class="menu-link" target="_self">
+                            <span class="method ${api.method}">${api.method}</span>
+                            <span class="url">${api.url}</span>
+                        </a>
+                    `;
+                }).join("");
+
+                return bigMenu + menu;
+            })
+            
+            document.getElementById("auto-menu").innerHTML = html.join("");
+        }
+
+        const setContents = () => {
+            let html = Object.keys(apis).map(big => {
+                const bigMenu = `<div class="menu-title">${big}</div>`;
+                const menu = apis[big].map(api => {
+                    return `
+                        <a href="#${api.url}" class="menu-link" target="_self">
+                            <span class="method ${api.method}">${api.method}</span>
+                            <span class="url">${api.url}</span>
+                        </a>
+                    `;
+                }).join("");
+
+                return bigMenu + menu;
+            })
+        }
+
+        const Show = (url, type, _this) => {
+            console.log(this);
+            document.querySelectorAll(`[data-url=${url}]`).forEach(dom=>{
+                dom.removeClass('show');
+                dom.addClass('hide')
+            })
+            document.querySelector(`[data-url=${url}][data-type=${type}]`).addClass('show');
+
+            // 버튼
+            document.querySelectorAll(`button[data-type=${url}]`).forEach(dom=>{
+                dom.removeClass('show');
+            })
+            _this.addClass('show');
+        }
+
+        const load = () => {
+            setNav();
+            setContents();
+            hljs.initHighlightingOnLoad();
+        }
+
+        load();
+    </script>
+</html>
