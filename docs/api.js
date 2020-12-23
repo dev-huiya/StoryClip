@@ -4,7 +4,7 @@ const apis = {
             url: "/account/signup-check/email",
             method: "GET",
             title: "이메일 중복 확인",
-            description: "회원가입 전 사용자가 입력한 이메일을 중복 확인 확인합니다.",
+            description: "회원가입 전 사용자가 입력한 이메일을 중복 확인합니다.",
             params: [
                 {
                     name: "email",
@@ -14,13 +14,15 @@ const apis = {
                 },
             ],
             response: {
-                success: `{
-                    "success": true,
-                    "message": "OK",
-                    "resultData": {
-                        "usage": true | false
-                    }
-                }`,
+                success: `HTTP/1.1 200 OK
+
+{
+    "success": true,
+    "message": "OK",
+    "resultData": {
+        "usage": true | false
+    }
+}`,
                 fail: [``],
                 description: ""
             }
@@ -30,6 +32,14 @@ const apis = {
             method: "POST",
             title: "회원가입",
             description: "회원가입",
+            headers: [
+                {
+                    name: "Authorization",
+                    required: true,
+                    type: "String",
+                    description: "JWT Token<br>",
+                },
+            ],
             params: [
                 {
                     name: "email",
@@ -63,14 +73,38 @@ const apis = {
                 },
             ],
             response: {
-                success: `{
-                    "success": true,
-                    "message": "OK",
-                    "resultData": {
-                        "join": true
-                    }
-                }`,
-                fail: [``],
+                success: `HTTP/1.1 200 OK
+
+{
+    "success": true,
+    "message": "OK",
+    "resultData": {
+        "join": true
+    }
+}`,
+                fail: [
+`HTTP/1.1 200 OK
+
+{
+    "success": false,
+    "message": "AUTH_WRONG",
+    "resultData": null
+}`,
+`HTTP/1.1 200 OK
+
+{
+    "success": false,
+    "message": "JOIN_DUPLICATE",
+    "resultData": null
+}`,
+`HTTP/1.1 200 OK
+
+{
+    "success": false,
+    "message": "CAPTCHA_FAIL",
+    "resultData": null
+}`,
+            ],
                 description: ""
             }
         },
@@ -81,7 +115,7 @@ const apis = {
             method: "GET",
             title: "이미지",
             description: "업로드된 이미지를 불러오는 API 입니다",
-            header: [
+            headers: [
                 {
                     name: "Authorization",
                     required: true,
