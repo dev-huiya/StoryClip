@@ -1,6 +1,8 @@
 <html>
     <head>
         <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+
         <title>API docs</title>
 
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.4.1/styles/atom-one-dark.min.css">
@@ -25,6 +27,7 @@
             }
             body {
                 display: flex;
+                min-width: 700px;
             }
             nav {
                 min-width: 300px;
@@ -207,6 +210,7 @@
                 padding-bottom: 5px;
                 color: #aaa;
                 font-weight: 300;
+                margin-top: 15px;
             }
             .params {
                 margin-bottom: 15px;
@@ -245,6 +249,28 @@
             .param-example {
                 font-weight: 300;
             }
+
+            @media screen and (max-width: 1330px) {
+                content section {
+                    flex-wrap: wrap;
+                }
+                content section .left-contents, content section .right-contents {
+                    width: 100%;
+                }
+            }
+            @media screen and (max-device-width: 799px) {
+                body {
+                    flex-wrap: wrap;
+                }
+                nav {
+                    width: 100%;
+                }
+                nav #menu-list {
+                    height: inherit;
+                    padding: 20px 10px;
+                    border-bottom: 1px solid #EBF1F5;
+                }
+            }
         </style>
 
     </head>
@@ -275,36 +301,13 @@
                     <div class="info-box error">GET 방식이 아닐 경우 body에 JSON 객체를 담아서 보내야 합니다.</div>
                 </div>
                 <div class="right-contents">
-                    <div class="button">
-                        <button class="title show" data-type="GettingStarted" onclick="Show('GettingStarted', 'response', this)">Response</button>
-                        <button class="title" data-type="GettingStarted" onclick="Show('GettingStarted', 'error', this)">ERROR</button>
-                    </div>
-                    
-                    <div data-url="GettingStarted" data-type="response" class="show">
-                        <pre><code class="http">HTTP/1.1 200 OK
-
-{
-    "success": true,
-    "message": "OK",
-    "resultData": "..."
-}</code></pre>
-                    </div>
-                    <div data-url="GettingStarted" data-type="error" class="hide">
-                        <pre><code class="http">HTTP/1.1 401 Unauthorized
-
-{
-    "success": false,
-    "message": "AUTH_REQURED",
-    "resultData": null
-}</code></pre>
-                    </div>
                 </div>
             </section>
             <section id="Authentication">
                 <div class="left-contents">
                     <h2 class="title">인증</h2>
                     <p>거의 대부분의 API는 JWT 토큰을 이용한 인증을 요구합니다.</p>
-                    <p>JWT 토큰은 로그인을 통해 발급 받을 수 있습니다.</p>
+                    <p>JWT 토큰은 로그인 API를 통해 발급 받을 수 있습니다.</p>
                     <div class="info-box error">토큰 없이 API 호출시 아무것도 작동하지 않습니다.</div>
                 </div>
                 <div class="right-contents">
@@ -338,6 +341,7 @@
                     <h2 class="title">에러코드</h2>
                     <p>API에서 발생하는 에러 코드에 대한 목록입니다.</p>
                     <p>리턴되는 형식은 오른쪽 포맷으로 리턴됩니다.</p>
+                    <div id="auto-error"></div>
                 </div>
                 <div class="right-contents">
                     <div class="button">
@@ -360,6 +364,7 @@
         </content>
     </body>
     <script src="./api.js"></script>
+    <script src="./error.js"></script>
     <script>
         Element.prototype.hasClass = function (_class) {
             return !!this.className.match(new RegExp('(\\s|^)'+_class+'(\\s|$)'));
@@ -405,6 +410,11 @@
                             ${api.description.split("\n").map(line=>(
                                 `<p>${line}</p>`
                             )).join("")}
+                            ${!!api.info
+                            ? api.info.map(info=>(
+                                `<div class="info-box ${info.type}">${info.message}</div>`
+                            ))
+                            : ""}
                             ${!!api.headers ? (`
                                 <div class="params-title">HTTP 헤더</div>
                                 <div class="params">
@@ -412,7 +422,6 @@
                                     <div class="param">
                                         <div class="left-param">
                                             <div>
-                                                <span class="param-type">${header.type}</span>
                                                 <span class="param-name">${header.name}</span>
                                             </div>
                                             ${header.required 
@@ -427,7 +436,7 @@
                                 </div>`
                             ) : ""}
                             ${!!api.params ? (`
-                                <div class="params-title">파라매터</div>
+                                <div class="params-title">요청 파라매터</div>
                                 <div class="params">
                                 ${api.params.map(param=>(`
                                     <div class="param">
@@ -447,14 +456,39 @@
                                 )).join("")}
                                 </div>`
                             ) : ""}
+                            ${!!api.response.params ? (`
+                                <div class="params-title">응답 파라매터</div>
+                                <div class="params">
+                                ${api.response.params.map(param=>(`
+                                    <div class="param">
+                                        <div class="left-param">
+                                            <div>
+                                                <span class="param-type">${param.type}</span>
+                                                <span class="param-name">${param.name}</span>
+                                            </div>
+                                            ${param.always
+                                ? `<div class="param-required true">always return</div>`
+                                : `<div class="param-required">optional return</div>`}
+                                        </div>
+                                        <div class="right-param">
+                                            <div class="param-description">${param.description}</div>
+                                        </div>
+                                    </div>`
+                        )).join("")}
+                                </div>`
+                    ) : ""}
                         </div>
                         <div class="right-contents">
                             <div class="button">
-                                <button class="title show" data-type="${api.url}" onclick="Show('${api.url}', 'response', this)">Response</button>
+                                <button class="title show" data-type="${api.url}" onclick="Show('${api.url}', 'request', this)">Request</button>
+                                <button class="title" data-type="${api.url}" onclick="Show('${api.url}', 'response', this)">Response</button>
                                 <button class="title" data-type="${api.url}" onclick="Show('${api.url}', 'error', this)">ERROR</button>
                             </div>
-                            
-                            <div data-url="${api.url}" data-type="response" class="show">
+
+                            <div data-url="${api.url}" data-type="request" class="show">
+                                <pre><code class="javascript">${api.request}</code></pre>
+                            </div>
+                            <div data-url="${api.url}" data-type="response" class="hide">
                                 <pre><code class="http">${api.response.success}</code></pre>
                             </div>
                             <div data-url="${api.url}" data-type="error" class="hide">
@@ -469,6 +503,28 @@
             })
 
             document.getElementById("auto-contents").innerHTML = html.join("");
+        }
+
+        const setErrorCode = () => {
+            const html = `
+                <div class="params-title">에러 코드</div>
+                <div class="params">
+                    ${errorCodes.map(error=>(`
+                        <div class="param">
+                            <div class="left-param">
+                                <div>
+                                    <span class="param-name">${error.name}</span>
+                                </div>
+                                <div class="param-required true">${error.type}</div>
+                            </div>
+                            <div class="right-param">
+                                <div class="param-description">${error.description}</div>
+                            </div>
+                        </div>`
+                    )).join("")}
+                </div>`
+
+            document.getElementById("auto-error").innerHTML = html;
         }
 
         const Show = (url, type, _this) => {
@@ -489,6 +545,7 @@
         const load = () => {
             setNav();
             setContents();
+            setErrorCode();
             hljs.initHighlightingOnLoad();
         }
 

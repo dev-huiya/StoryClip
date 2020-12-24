@@ -32,7 +32,7 @@ public enum Auth {
     JWT_INVALID_CLAIM,
 
     /**
-     * 지원하지 않는 알고리즘.
+     * 지원하지 않는 알고리즘 : 서버 에러
      */
     JWT_ALGORITHM_ERROR,
 
