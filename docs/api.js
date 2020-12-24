@@ -13,6 +13,15 @@ const apis = {
                     description: "사용자가 입력한 이메일"
                 },
             ],
+            request: `query({
+    url: '/account/signup-check/email',
+    method: 'GET',
+    data: {
+        email: 'test@test.com'
+    }
+}).then(res=>{
+    console.log(res)
+})`,
             response: {
                 success: `HTTP/1.1 200 OK
 
@@ -24,21 +33,26 @@ const apis = {
     }
 }`,
                 fail: [``],
-                description: ""
+                params: [
+                    {
+                        name: "usage",
+                        always: true,
+                        type: "Boolean",
+                        description: "사용 가능 여부"
+                    },
+                ],
             }
         },
         {
             url: "/account/signup",
             method: "POST",
             title: "회원가입",
-            description: "회원가입",
-            headers: [
+            description: `입력받은 사용자 정보로 회원가입을 합니다.`,
+            info: [
                 {
-                    name: "Authorization",
-                    required: true,
-                    type: "String",
-                    description: "JWT Token<br>",
-                },
+                    type: 'error',
+                    message : '프로필 이미지 업로드를 위해 multipart/form-data 형식으로 전달되어야 합니다.'
+                }
             ],
             params: [
                 {
@@ -72,6 +86,21 @@ const apis = {
                     description: "사용자 프로필 이미지"
                 },
             ],
+            request: `const formData = new FormData();
+formData.append('email', String);
+formData.append('password', String);
+formData.append('penName', String);
+formData.append('profile', File);
+formData.append('recaptchaToken', String);
+
+query({
+    url: "/account/signup",
+    method: "POST",
+    data: formData,
+})
+.then((res) => {
+    console.log(res);
+})`,
             response: {
                 success: `HTTP/1.1 200 OK
 
@@ -87,29 +116,207 @@ const apis = {
 
 {
     "success": false,
-    "message": "AUTH_WRONG",
+    "message": "AUTH_WRONG" 
+                | "JOIN_DUPLICATE" 
+                | "CAPTCHA_EMPTY" 
+                | "CAPTCHA_FAIL",
     "resultData": null
 }`,
-`HTTP/1.1 200 OK
-
-{
-    "success": false,
-    "message": "JOIN_DUPLICATE",
-    "resultData": null
-}`,
-`HTTP/1.1 200 OK
-
-{
-    "success": false,
-    "message": "CAPTCHA_FAIL",
-    "resultData": null
-}`,
+                ],
+                params: [
+                    {
+                        name: "join",
+                        always: true,
+                        type: "Boolean",
+                        description: "가입 성공 여부"
+                    },
+                ],
+            }
+        },
+        {
+            url: "/account/signin",
+            method: "POST",
+            title: "로그인",
+            description: `입력받은 사용자 정보로 로그인하고 JWT 토큰을 발급받습니다.`,
+            params: [
+                {
+                    name: "email",
+                    required: true,
+                    type: "String",
+                    description: "이메일 (아이디)"
+                },
+                {
+                    name: "password",
+                    required: true,
+                    type: "String",
+                    description: "비밀번호"
+                },
             ],
-                description: ""
+            request: `query({
+    url: "/account/signin",
+    method: "POST",
+    data: {
+        "email": "test@test.com",
+        "password": "1234"
+    },
+})
+.then((res) => {
+    console.log(res)
+}`,
+            response: {
+                success: `HTTP/1.1 200 OK
+
+{
+    "success": true,
+    "message": "OK",
+    "resultData": {
+        "token": "eyJ0eXAiOiJKV1QiLCJhbG...",
+        "browser": "Windows 10 / Chrome 87",
+        "publicKey": "-----BEGIN PUBLIC KEY-----..."
+    }
+}`,
+                fail: [
+                    `HTTP/1.1 200 OK
+
+{
+    "success": false,
+    "message": "AUTH_WRONG" 
+                | "JWT_ERROR",
+    "resultData": null
+}`,
+                ],
+                params: [
+                    {
+                        name: "token",
+                        always: true,
+                        type: "String",
+                        description: "엑세스 토큰"
+                    },
+                    {
+                        name: "browser",
+                        always: true,
+                        type: "String",
+                        description: "접속한 브라우저 정보"
+                    },
+                    {
+                        name: "publicKey",
+                        always: true,
+                        type: "String",
+                        description: "토큰 검증에 사용하는 공개키"
+                    },
+                ],
+            }
+        },
+    ],
+    "인증": [
+        {
+            url: "/auth/refresh",
+            method: "PUT",
+            title: "JWT 토큰 갱신",
+            description: "refresh_token으로 access_token을 재발급 받습니다.",
+            params: [
+                {
+                    name: "refresh",
+                    required: true,
+                    type: "String",
+                    description: "JWT 발급시 전달 받은 refresh_token"
+                },
+            ],
+            request: `query({
+    url: "/auth/refresh",
+    method: "PUT",
+    data: {
+        requestToken: String
+    }
+})
+.then((res) => {
+    console.log(res);
+})`,
+            response: {
+                success: `HTTP/1.1 200 OK
+
+{
+    "success": true,
+    "message": "OK",
+    "resultData": {
+        "token": "eyJ0eXAiOiJKV1QiLCJhbG...",
+        "browser": "Windows 10 / Chrome 87",
+        "publicKey": "-----BEGIN PUBLIC KEY-----..."
+    }
+}`,
+                fail: [
+                    `HTTP/1.1 200 OK
+
+{
+    "success": false,
+    "message": "AUTH_WRONG" 
+                | "JWT_ERROR",
+    "resultData": null
+}`,
+                ],
+                params: [
+                    {
+                        name: "token",
+                        always: true,
+                        type: "String",
+                        description: "엑세스 토큰"
+                    },
+                    {
+                        name: "browser",
+                        always: true,
+                        type: "String",
+                        description: "접속한 브라우저 정보"
+                    },
+                    {
+                        name: "publicKey",
+                        always: true,
+                        type: "String",
+                        description: "토큰 검증에 사용하는 공개키"
+                    },
+                ],
             }
         },
     ],
     "기타": [
+        {
+            url: "/",
+            method: "GET",
+            title: "서버 정보",
+            description: "기본적인 서버 정보를 요청합니다.",
+            request: `query({
+    url: "/",
+})
+.then((res) => {
+    console.log(res);
+})`,
+            response: {
+                success: `HTTP/1.1 200 OK
+
+{
+    "success": true,
+    "message": "OK",
+    "resultData": {
+        "isServerRun": true,
+        "version": "0.1.0-SNAPSHOT"
+    }
+}`,
+                fail: [``],
+                params: [
+                    {
+                        name: "isServerRun",
+                        always: true,
+                        type: "Boolean",
+                        description: "서버 가동 여부"
+                    },
+                    {
+                        name: "version",
+                        always: true,
+                        type: "String",
+                        description: "서버 버전 정보"
+                    },
+                ],
+            }
+        },
         {
             url: "/images/{hash}",
             method: "GET",
@@ -119,86 +326,33 @@ const apis = {
                 {
                     name: "Authorization",
                     required: true,
-                    type: "String",
-                    description: "JWT Token"
+                    description: "JWT Token",
                 },
             ],
+            request: ``,
             response: {
-                success: `이미지 byte[]`,
+                success: `HTTP/1.1 200 OK
+
+이미지 byte[]`,
                 fail: [
-                    `{
-                        "success": false,
-                        "message": "AUTH_REQURED",
-                        "resultData": null
-                    }`,
-                    `{
-                        "success": false,
-                        "message": "JWT_EXPIRED_ERROR",
-                        "resultData": null
-                    }`
+                    `HTTP/1.1 401 Unauthorized
+
+{
+    "success": false,
+    "message": "AUTH_REQURED" | "JWT_EXPIRED_ERROR",
+    "resultData": null
+}`,
+`HTTP/1.1 403 Forbidden
+
+{
+    "success": false,
+    "message": "FORBIDDEN",
+    "resultData": null
+}`,
                 ],
-                description: ""
+
             }
         },
-        {
-            url: "/images/{hash}",
-            method: "PUT",
-            title: "이미지",
-            description: "업로드된 이미지를 불러오는 ",
-            header: [
-                {
-                    name: "Authorization",
-                    required: true,
-                    type: "String",
-                    description: "JWT Token"
-                },
-            ],
-            response: {
-                success: `이미지 byte[]`,
-                fail: [
-                    `{
-                        "success": false,
-                        "message": "AUTH_REQURED",
-                        "resultData": null
-                    }`,
-                    `{
-                        "success": false,
-                        "message": "JWT_EXPIRED_ERROR",
-                        "resultData": null
-                    }`
-                ],
-                description: ""
-            }
-        },
-        {
-            url: "/images/{hash}",
-            method: "DELETE",
-            title: "이미지",
-            description: "업로드된 이미지를 불러오는 ",
-            header: [
-                {
-                    name: "Authorization",
-                    required: true,
-                    type: "String",
-                    description: "JWT Token"
-                },
-            ],
-            response: {
-                success: `이미지 byte[]`,
-                fail: [
-                    `{
-                        "success": false,
-                        "message": "AUTH_REQURED",
-                        "resultData": null
-                    }`,
-                    `{
-                        "success": false,
-                        "message": "JWT_EXPIRED_ERROR",
-                        "resultData": null
-                    }`
-                ],
-                description: ""
-            }
-        },
+
     ],
 };
