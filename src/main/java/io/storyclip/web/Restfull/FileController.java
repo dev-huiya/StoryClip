@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.HashMap;
 
 @RestController
-@RequestMapping(value="/images")
+@RequestMapping(value="/")
 public class FileController {
 
     @Cacheable("images")
-    @RequestMapping(value={"/{hash}","/{hash}"})
+    @RequestMapping(value={"/{hash}","/images/{hash}"})
     public ResponseEntity<byte[]> getImage(@RequestHeader("Authorization") String token, @PathVariable String hash) throws Exception {
 
         HashMap<String, Object> info = JWTManager.read(token);
