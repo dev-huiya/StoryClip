@@ -1,5 +1,6 @@
 package io.storyclip.web.Restfull;
 
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import io.storyclip.web.Common.JWTManager;
 import io.storyclip.web.Common.UserAgentParser;
 import io.storyclip.web.Entity.Result;
@@ -82,6 +83,25 @@ public class AuthController {
 
         result.setSuccess(true);
         result.setMessage(Auth.OK);
+        result.setResult(hashMap);
+
+        return result;
+    }
+
+    @GetMapping(value="/key")
+    public Result getPublicKey(@RequestHeader(value = "Authorization") String token) throws Exception {
+        Result result = new Result();
+        Token savedToken = TokenRepo.getTokenByToken(token.replace("Bearer ", ""));
+        if(savedToken == null) {
+            throw new TokenExpiredException(null);
+        }
+
+        result.setSuccess(true);
+        result.setMessage(Auth.OK);
+
+        HashMap<String, Object> hashMap = new HashMap<>();
+        hashMap.put("publicKey", savedToken.getPublicKey());
+
         result.setResult(hashMap);
 
         return result;

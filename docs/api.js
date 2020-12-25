@@ -245,8 +245,7 @@ query({
 
 {
     "success": false,
-    "message": "AUTH_WRONG" 
-                | "JWT_ERROR",
+    "message": "JWT_EXPIRED_ERROR" | "AUTH_WRONG" | "JWT_ERROR",
     "resultData": null
 }`,
                 ],
@@ -316,6 +315,54 @@ query({
                         always: true,
                         type: "Boolean",
                         description: "검증 성공 여부"
+                    },
+                ],
+            }
+        },
+        {
+            url: "/auth/key",
+            method: "GET",
+            title: "토큰 공개키 요청",
+            description: "JWT를 검증하는데 사용할 공개키를 요청합니다.",
+            headers: [
+                {
+                    name: "Authorization",
+                    required: true,
+                    description: "JWT Token",
+                },
+            ],
+            request: `query({
+    url: "/auth/key",
+    method: "GET",
+})
+.then((res) => {
+    console.log(res);
+})`,
+            response: {
+                success: `HTTP/1.1 200 OK
+
+{
+    "success": true,
+    "message": "OK",
+    "resultData": {
+        "publicKey": "-----BEGIN PUBLIC KEY-----\\nMIIBIjANBgkqhkiG9w0BAQEFA...jWTpMvw+bNwIDAQAB\\n-----END PUBLIC KEY-----\\n"
+    }
+}`,
+                fail: [
+                    `HTTP/1.1 401 Unauthorized
+
+{
+    "success": false,
+    "message": "AUTH_REQURED" | "JWT_EXPIRED_ERROR",
+    "resultData": null
+}`,
+                ],
+                params: [
+                    {
+                        name: "publicKey",
+                        always: true,
+                        type: "String",
+                        description: "토큰 검증에 사용하는 공개키"
                     },
                 ],
             }
