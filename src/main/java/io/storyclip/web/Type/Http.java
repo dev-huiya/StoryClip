@@ -19,7 +19,7 @@ public enum Http {
     /**
      * 500 Server error
      */
-    ERROR,
+    SERVER_ERROR,
 
     /**
      * 필수값 누락됨

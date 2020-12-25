@@ -116,10 +116,7 @@ query({
 
 {
     "success": false,
-    "message": "AUTH_WRONG" 
-                | "JOIN_DUPLICATE" 
-                | "CAPTCHA_EMPTY" 
-                | "CAPTCHA_FAIL",
+    "message": "AUTH_WRONG" | "JOIN_DUPLICATE" | "CAPTCHA_EMPTY" | "CAPTCHA_FAIL",
     "resultData": null
 }`,
                 ],
@@ -172,7 +169,7 @@ query({
     "resultData": {
         "token": "eyJ0eXAiOiJKV1QiLCJhbG...",
         "browser": "Windows 10 / Chrome 87",
-        "publicKey": "-----BEGIN PUBLIC KEY-----..."
+        "publicKey": "-----BEGIN PUBLIC KEY-----\\nMIIBIjANBgkqhkiG9w0BAQ...pDSQIDAQAB\\n-----END PUBLIC KEY-----\\n"
     }
 }`,
                 fail: [
@@ -180,8 +177,7 @@ query({
 
 {
     "success": false,
-    "message": "AUTH_WRONG" 
-                | "JWT_ERROR",
+    "message": "AUTH_WRONG" | "JWT_ERROR",
     "resultData": null
 }`,
                 ],
@@ -241,7 +237,7 @@ query({
     "resultData": {
         "token": "eyJ0eXAiOiJKV1QiLCJhbG...",
         "browser": "Windows 10 / Chrome 87",
-        "publicKey": "-----BEGIN PUBLIC KEY-----..."
+        "publicKey": "-----BEGIN PUBLIC KEY-----\\nMIIBIjANBgkqhkiG9w0BAQ...pDSQIDAQAB\\n-----END PUBLIC KEY-----\\n"
     }
 }`,
                 fail: [
@@ -249,8 +245,7 @@ query({
 
 {
     "success": false,
-    "message": "AUTH_WRONG" 
-                | "JWT_ERROR",
+    "message": "JWT_EXPIRED_ERROR" | "AUTH_WRONG" | "JWT_ERROR",
     "resultData": null
 }`,
                 ],
@@ -276,11 +271,173 @@ query({
                 ],
             }
         },
+        {
+            url: "/auth/verify",
+            method: "GET",
+            title: "JWT 토큰 검증",
+            description: "access_token이 사용 가능한지 검증합니다.",
+            headers: [
+                {
+                    name: "Authorization",
+                    required: false,
+                    description: "JWT Token",
+                },
+            ],
+            request: `query({
+    url: "/auth/verify",
+    method: "GET",
+})
+.then((res) => {
+    console.log(res);
+})`,
+            response: {
+                success: `HTTP/1.1 200 OK
+
+{
+    "success": true,
+    "message": "OK",
+    "resultData": {
+        "verify": true | false
+    }
+}`,
+                fail: [
+                    `HTTP/1.1 500 Internal Server Error
+
+{
+    "success": false,
+    "message": "SERVER_ERROR",
+    "resultData": null
+}`,
+                ],
+                params: [
+                    {
+                        name: "verify",
+                        always: true,
+                        type: "Boolean",
+                        description: "검증 성공 여부"
+                    },
+                ],
+            }
+        },
+        {
+            url: "/auth/key",
+            method: "GET",
+            title: "토큰 공개키 요청",
+            description: "JWT를 검증하는데 사용할 공개키를 요청합니다.",
+            headers: [
+                {
+                    name: "Authorization",
+                    required: true,
+                    description: "JWT Token",
+                },
+            ],
+            request: `query({
+    url: "/auth/key",
+    method: "GET",
+})
+.then((res) => {
+    console.log(res);
+})`,
+            response: {
+                success: `HTTP/1.1 200 OK
+
+{
+    "success": true,
+    "message": "OK",
+    "resultData": {
+        "publicKey": "-----BEGIN PUBLIC KEY-----\\nMIIBIjANBgkqhkiG9w0BAQEFA...jWTpMvw+bNwIDAQAB\\n-----END PUBLIC KEY-----\\n"
+    }
+}`,
+                fail: [
+                    `HTTP/1.1 401 Unauthorized
+
+{
+    "success": false,
+    "message": "AUTH_REQURED" | "JWT_EXPIRED_ERROR",
+    "resultData": null
+}`,
+                ],
+                params: [
+                    {
+                        name: "publicKey",
+                        always: true,
+                        type: "String",
+                        description: "토큰 검증에 사용하는 공개키"
+                    },
+                ],
+            }
+        },
+    ],
+    "이미지": [
+        {
+            url: "/images/{hash}",
+            method: "GET",
+            urls: [
+                {
+                    url: "/{hash}",
+                    method: "GET"
+                },
+                {
+                    url: "/images/{hash}",
+                    method: "GET"
+                }
+            ],
+            title: "이미지",
+            description: "업로드된 이미지를 불러오는 API 입니다",
+            headers: [
+                {
+                    name: "Authorization",
+                    required: true,
+                    description: "JWT Token",
+                },
+            ],
+            params: [
+                {
+                    name: "hash",
+                    required: true,
+                    type: "PathVariable String",
+                    description: "이미지 파일 해시값"
+                },
+            ],
+            request: ``,
+            response: {
+                success: `HTTP/1.1 200 OK
+
+이미지 byte[]`,
+                fail: [
+                    `HTTP/1.1 401 Unauthorized
+
+{
+    "success": false,
+    "message": "AUTH_REQURED" | "JWT_EXPIRED_ERROR",
+    "resultData": null
+}`,
+`HTTP/1.1 403 Forbidden
+
+{
+    "success": false,
+    "message": "FORBIDDEN",
+    "resultData": null
+}`,
+                ],
+
+            }
+        },
     ],
     "기타": [
         {
             url: "/",
             method: "GET",
+            urls: [
+                {
+                    url: "/",
+                    method: "GET"
+                },
+                {
+                    url: "/status",
+                    method: "GET"
+                }
+            ],
             title: "서버 정보",
             description: "기본적인 서버 정보를 요청합니다.",
             request: `query({
@@ -317,42 +474,5 @@ query({
                 ],
             }
         },
-        {
-            url: "/images/{hash}",
-            method: "GET",
-            title: "이미지",
-            description: "업로드된 이미지를 불러오는 API 입니다",
-            headers: [
-                {
-                    name: "Authorization",
-                    required: true,
-                    description: "JWT Token",
-                },
-            ],
-            request: ``,
-            response: {
-                success: `HTTP/1.1 200 OK
-
-이미지 byte[]`,
-                fail: [
-                    `HTTP/1.1 401 Unauthorized
-
-{
-    "success": false,
-    "message": "AUTH_REQURED" | "JWT_EXPIRED_ERROR",
-    "resultData": null
-}`,
-`HTTP/1.1 403 Forbidden
-
-{
-    "success": false,
-    "message": "FORBIDDEN",
-    "resultData": null
-}`,
-                ],
-
-            }
-        },
-
     ],
 };

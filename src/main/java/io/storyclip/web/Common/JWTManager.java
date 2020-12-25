@@ -11,6 +11,7 @@ import io.storyclip.web.Encrypt.RSAUtils;
 import io.storyclip.web.Encrypt.SHA256Util;
 import io.storyclip.web.Entity.Token;
 import io.storyclip.web.Entity.User;
+import io.storyclip.web.Exception.AuthRequiredException;
 import io.storyclip.web.Repository.TokenRepository;
 import org.springframework.stereotype.Component;
 
@@ -126,7 +127,7 @@ public class JWTManager {
      */
     public static DecodedJWT verify(String token) throws Exception {
 
-        Token savedToken = TokenRepo.getTokenByToken(token);
+        Token savedToken = TokenRepo.getTokenByToken(token.replace("Bearer ", ""));
         if(savedToken == null) {
             // 디비에 저장된 키가 없으면 만료로 판정
             throw new TokenExpiredException(null);
@@ -179,6 +180,10 @@ public class JWTManager {
      */
     public static HashMap<String, Object> read(String token) throws Exception {
         HashMap<String, Object> info = null;
+
+        if(token == null) {
+            throw new AuthRequiredException("Required token");
+        }
 
         Claim jws = verify(token.replace("Bearer ", "")).getClaim("info");
         if(jws != null) {

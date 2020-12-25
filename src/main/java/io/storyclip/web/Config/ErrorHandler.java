@@ -12,6 +12,7 @@ import io.storyclip.web.Type.Auth;
 import io.storyclip.web.Type.Http;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
@@ -23,7 +24,7 @@ import java.security.spec.InvalidKeySpecException;
 public class ErrorHandler {
 
     // 필수 파라매터 누락됨
-    @ExceptionHandler(ParamRequiredException.class)
+    @ExceptionHandler({ParamRequiredException.class, MissingServletRequestParameterException.class})
     public ResponseEntity<Result> ParamRequired() {
         Result result = new Result();
         result.setSuccess(false);
@@ -101,6 +102,20 @@ public class ErrorHandler {
         result.setSuccess(false);
         result.setMessage(Auth.JWT_VERIFY_ERROR);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
+    }
+
+    // 서버 에러
+    @ExceptionHandler(Exception.class)
+    ResponseEntity<Result> ServerError(Exception e) {
+
+        // System.out.println(e.getMessage());
+        // 위 코드로 에러 메세지 읽을 수 있음. 필요시 에러 메세지 읽어서 사용할 것.
+        // 2020-12-25 hw kim
+
+        Result result = new Result();
+        result.setSuccess(false);
+        result.setMessage(Http.SERVER_ERROR);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result);
     }
 
 }

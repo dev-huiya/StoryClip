@@ -1,5 +1,6 @@
 package io.storyclip.web.Restfull;
 
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import io.storyclip.web.Common.JWTManager;
 import io.storyclip.web.Common.UserAgentParser;
 import io.storyclip.web.Entity.Result;
@@ -68,34 +69,40 @@ public class AuthController {
 
     // TODO: logout으로 토큰 폐기하는 API 필요함.
 
-    // ############################# 이 밑은 테스트 코드
-
     @GetMapping(value="/verify")
-    public Result verifyToken(@RequestHeader("Authorization") String token) throws Exception {
+    public Result verifyToken(@RequestHeader(required = false, value = "Authorization") String token) throws Exception {
         Result result = new Result();
+        HashMap<String, Object> hashMap = new HashMap<>();
+        hashMap.put("verify", false);
 
-//        System.out.println(token);
-
-        HashMap<String, Object> info = JWTManager.read(token);
-        // 읽었을때 만료나 일치하지 않는 토큰이 들어올 수가 없음.
-        // 인터셉터에서 이미 한번 검증을 거쳐서 올라오는거라 만료된 토큰을 인터셉터 단에서 걸러버림
-        // 2020-12-22 16:38 hw.kim
-//
-        System.out.println("########## token read test");
-        System.out.println("id: "+info.get("id"));
-        System.out.println("email: "+info.get("email"));
-        System.out.println("penName: "+info.get("penName"));
-        System.out.println("profile: "+info.get("profile"));
-        System.out.println("lastDate: "+info.get("lastDate"));
-
-        System.out.println("refreshToken: "+info.get("refreshToken"));
-        System.out.println("refreshExpireDate: "+info.get("refreshExpireDate"));
-
+        try {
+            HashMap<String, Object> info = JWTManager.read(token);
+            hashMap.put("verify", true);
+        } catch (Exception e) {
+        }
 
         result.setSuccess(true);
         result.setMessage(Auth.OK);
-        result.setResult(info);
-        // TODO: 테스트용 메소드라서 사실상 쓸모 없음. 인터셉터로 기능 이전 바람.
+        result.setResult(hashMap);
+
+        return result;
+    }
+
+    @GetMapping(value="/key")
+    public Result getPublicKey(@RequestHeader(value = "Authorization") String token) throws Exception {
+        Result result = new Result();
+        Token savedToken = TokenRepo.getTokenByToken(token.replace("Bearer ", ""));
+        if(savedToken == null) {
+            throw new TokenExpiredException(null);
+        }
+
+        result.setSuccess(true);
+        result.setMessage(Auth.OK);
+
+        HashMap<String, Object> hashMap = new HashMap<>();
+        hashMap.put("publicKey", savedToken.getPublicKey());
+
+        result.setResult(hashMap);
 
         return result;
     }

@@ -1,7 +1,7 @@
 <html>
     <head>
         <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
 
         <title>API docs</title>
 
@@ -21,6 +21,7 @@
             * {
                 margin: 0px; padding: 0px;
                 font-family: 'Noto Sans KR', sans-serif;
+                word-break: break-word;
             }
             body, html {
                 height: 100%;
@@ -110,10 +111,14 @@
             content section {
                 display: flex;
             }
+            content section:not(#Copyright):last-child {
+                height: calc(100vh - 35px);
+            }
             content section .left-contents {
                 width: 60%;
                 padding: 30px 50px;
                 border-bottom: 1px solid #EBF1F5;
+                box-sizing: border-box;
             }
             content section .left-contents .method {
                 font-size: 1em;
@@ -144,6 +149,7 @@
                 padding: 30px 50px;
                 background-color: #232323;
                 border-bottom: 1px solid #333333;
+                box-sizing: border-box;
             }
             content section .right-contents .title {
                 font-weight: 300;
@@ -161,6 +167,10 @@
             content section .right-contents button.show {
                 background-color: #ffffff21;
                 border-radius: 3px;
+            }
+            content section#Copyright .left-contents, 
+            content section#Copyright .right-contents {
+                padding: inherit;
             }
             .hljs {
                 padding: 15px;
@@ -250,6 +260,15 @@
                 font-weight: 300;
             }
 
+            footer {
+                font-size: 0.8em;
+                text-align: center;
+                height: 35px;
+                line-height: 35px;
+                color: #969696;
+                font-weight: 300;
+            }
+
             @media screen and (max-width: 1330px) {
                 content section {
                     flex-wrap: wrap;
@@ -257,10 +276,20 @@
                 content section .left-contents, content section .right-contents {
                     width: 100%;
                 }
+
+                footer {
+                    background: #232323;
+                    color: #7d7d7d;
+                }
+
+                .mnone {
+                    display: none;
+                }
             }
             @media screen and (max-device-width: 799px) {
                 body {
                     flex-wrap: wrap;
+                    min-width: inherit;
                 }
                 nav {
                     width: 100%;
@@ -269,6 +298,13 @@
                     height: inherit;
                     padding: 20px 10px;
                     border-bottom: 1px solid #EBF1F5;
+                }
+                content section .left-contents, content section .right-contents {
+                    padding: 30px 20px;
+                }
+
+                .left-param, .right-param {
+                    width: 50%;
                 }
             }
         </style>
@@ -300,7 +336,7 @@
                     <p>아래 문서를 잘 읽고 따라오세요</p>
                     <div class="info-box error">GET 방식이 아닐 경우 body에 JSON 객체를 담아서 보내야 합니다.</div>
                 </div>
-                <div class="right-contents">
+                <div class="right-contents mnone">
                 </div>
             </section>
             <section id="Authentication">
@@ -361,6 +397,15 @@
             </section>
 
             <div id="auto-contents"></div>
+
+            <section id="Copyright">
+                <div class="left-contents">
+                    <footer>Copyright 팀 치킨방. All rights reserved.</footer>
+                </div>
+                <div class="right-contents mnone">
+                </div>
+            </section>
+            
         </content>
     </body>
     <script src="./api.js"></script>
@@ -403,10 +448,20 @@
                     <section id="${api.url}">
                         <div class="left-contents">
                             <h2 class="title">${api.title}</h2>
-                            <div>
-                                <span class="method ${api.method}">${api.method}</span>
-                                <span class="url">${api.url}</span>
-                            </div>
+                            ${!api.urls ? 
+                                `<div>
+                                    <span class="method ${api.method}">${api.method}</span>
+                                    <span class="url">${api.url}</span>
+                                </div>`
+                            :
+                                api.urls.map(url=>(
+                                    `<div>
+                                        <span class="method ${url.method}">${url.method}</span>
+                                        <span class="url">${url.url}</span>
+                                    </div>`
+                                )).join("")
+                            }
+                            
                             ${api.description.split("\n").map(line=>(
                                 `<p>${line}</p>`
                             )).join("")}
@@ -480,15 +535,15 @@
                         </div>
                         <div class="right-contents">
                             <div class="button">
-                                <button class="title show" data-type="${api.url}" onclick="Show('${api.url}', 'request', this)">Request</button>
-                                <button class="title" data-type="${api.url}" onclick="Show('${api.url}', 'response', this)">Response</button>
+                                <button class="title" data-type="${api.url}" onclick="Show('${api.url}', 'request', this)">Request</button>
+                                <button class="title show" data-type="${api.url}" onclick="Show('${api.url}', 'response', this)">Response</button>
                                 <button class="title" data-type="${api.url}" onclick="Show('${api.url}', 'error', this)">ERROR</button>
                             </div>
 
-                            <div data-url="${api.url}" data-type="request" class="show">
+                            <div data-url="${api.url}" data-type="request" class="hide">
                                 <pre><code class="javascript">${api.request}</code></pre>
                             </div>
-                            <div data-url="${api.url}" data-type="response" class="hide">
+                            <div data-url="${api.url}" data-type="response" class="show">
                                 <pre><code class="http">${api.response.success}</code></pre>
                             </div>
                             <div data-url="${api.url}" data-type="error" class="hide">
