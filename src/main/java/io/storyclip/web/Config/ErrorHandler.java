@@ -12,6 +12,7 @@ import io.storyclip.web.Type.Auth;
 import io.storyclip.web.Type.Http;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
@@ -23,7 +24,7 @@ import java.security.spec.InvalidKeySpecException;
 public class ErrorHandler {
 
     // 필수 파라매터 누락됨
-    @ExceptionHandler(ParamRequiredException.class)
+    @ExceptionHandler({ParamRequiredException.class, MissingServletRequestParameterException.class})
     public ResponseEntity<Result> ParamRequired() {
         Result result = new Result();
         result.setSuccess(false);

@@ -127,7 +127,7 @@ public class JWTManager {
      */
     public static DecodedJWT verify(String token) throws Exception {
 
-        Token savedToken = TokenRepo.getTokenByToken(token);
+        Token savedToken = TokenRepo.getTokenByToken(token.replace("Bearer ", ""));
         if(savedToken == null) {
             // 디비에 저장된 키가 없으면 만료로 판정
             throw new TokenExpiredException(null);

@@ -112,6 +112,8 @@ public class UserController {
     public Result login(@Valid @RequestBody User RequestUser, BindingResult bindingResult, HttpServletRequest request) {
         Result result = new Result();
 
+        // TODO: Auth 컨트롤러로 기능 이전하고 캡챠 인증기능 추가할것.
+
         if(bindingResult.hasErrors()){
             result.setSuccess(false);
             result.setMessage(Auth.AUTH_WRONG);
