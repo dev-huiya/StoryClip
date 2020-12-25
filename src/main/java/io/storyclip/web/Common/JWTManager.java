@@ -11,6 +11,7 @@ import io.storyclip.web.Encrypt.RSAUtils;
 import io.storyclip.web.Encrypt.SHA256Util;
 import io.storyclip.web.Entity.Token;
 import io.storyclip.web.Entity.User;
+import io.storyclip.web.Exception.AuthRequiredException;
 import io.storyclip.web.Repository.TokenRepository;
 import org.springframework.stereotype.Component;
 
@@ -179,6 +180,10 @@ public class JWTManager {
      */
     public static HashMap<String, Object> read(String token) throws Exception {
         HashMap<String, Object> info = null;
+
+        if(token == null) {
+            throw new AuthRequiredException("Required token");
+        }
 
         Claim jws = verify(token.replace("Bearer ", "")).getClaim("info");
         if(jws != null) {

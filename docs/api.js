@@ -272,6 +272,54 @@ query({
                 ],
             }
         },
+        {
+            url: "/auth/verify",
+            method: "GET",
+            title: "JWT 토큰 검증",
+            description: "access_token이 사용 가능한지 검증합니다.",
+            headers: [
+                {
+                    name: "Authorization",
+                    required: false,
+                    description: "JWT Token",
+                },
+            ],
+            request: `query({
+    url: "/auth/verify",
+    method: "GET",
+})
+.then((res) => {
+    console.log(res);
+})`,
+            response: {
+                success: `HTTP/1.1 200 OK
+
+{
+    "success": true,
+    "message": "OK",
+    "resultData": {
+        "verify": true | false
+    }
+}`,
+                fail: [
+                    `HTTP/1.1 500 Internal Server Error
+
+{
+    "success": false,
+    "message": "SERVER_ERROR",
+    "resultData": null
+}`,
+                ],
+                params: [
+                    {
+                        name: "verify",
+                        always: true,
+                        type: "Boolean",
+                        description: "검증 성공 여부"
+                    },
+                ],
+            }
+        },
     ],
     "이미지": [
         {

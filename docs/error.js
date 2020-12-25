@@ -70,7 +70,7 @@ const errorCodes = [
         description: "404 Not found"
     },
     {
-        name: "ERROR",
+        name: "SERVER_ERROR",
         type: "Http",
         description: "500 Server error"
     },

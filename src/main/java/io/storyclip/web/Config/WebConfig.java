@@ -24,7 +24,8 @@ public class WebConfig implements WebMvcConfigurer {
         "/account/signup-check/email",
         "/account/signup",
         "/account/signin",
-        "/auth/refresh"
+        "/auth/refresh",
+        "/auth/verify"
     };
 
     @Override
