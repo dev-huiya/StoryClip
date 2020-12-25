@@ -17,7 +17,7 @@ import java.util.HashMap;
 public class FileController {
 
     @Cacheable("images")
-    @RequestMapping(value="/{hash}")
+    @RequestMapping(value={"/{hash}","/{hash}"})
     public ResponseEntity<byte[]> getImage(@RequestHeader("Authorization") String token, @PathVariable String hash) throws Exception {
 
         HashMap<String, Object> info = JWTManager.read(token);
