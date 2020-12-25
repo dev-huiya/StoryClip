@@ -111,6 +111,9 @@
             content section {
                 display: flex;
             }
+            content section:not(#Copyright):last-child {
+                height: calc(100vh - 35px);
+            }
             content section .left-contents {
                 width: 60%;
                 padding: 30px 50px;
@@ -164,6 +167,10 @@
             content section .right-contents button.show {
                 background-color: #ffffff21;
                 border-radius: 3px;
+            }
+            content section#Copyright .left-contents, 
+            content section#Copyright .right-contents {
+                padding: inherit;
             }
             .hljs {
                 padding: 15px;
@@ -253,12 +260,30 @@
                 font-weight: 300;
             }
 
+            footer {
+                font-size: 0.8em;
+                text-align: center;
+                height: 35px;
+                line-height: 35px;
+                color: #969696;
+                font-weight: 300;
+            }
+
             @media screen and (max-width: 1330px) {
                 content section {
                     flex-wrap: wrap;
                 }
                 content section .left-contents, content section .right-contents {
                     width: 100%;
+                }
+
+                footer {
+                    background: #232323;
+                    color: #7d7d7d;
+                }
+
+                .mnone {
+                    display: none;
                 }
             }
             @media screen and (max-device-width: 799px) {
@@ -311,7 +336,7 @@
                     <p>아래 문서를 잘 읽고 따라오세요</p>
                     <div class="info-box error">GET 방식이 아닐 경우 body에 JSON 객체를 담아서 보내야 합니다.</div>
                 </div>
-                <div class="right-contents">
+                <div class="right-contents mnone">
                 </div>
             </section>
             <section id="Authentication">
@@ -372,6 +397,15 @@
             </section>
 
             <div id="auto-contents"></div>
+
+            <section id="Copyright">
+                <div class="left-contents">
+                    <footer>Copyright 팀 치킨방. All rights reserved.</footer>
+                </div>
+                <div class="right-contents mnone">
+                </div>
+            </section>
+            
         </content>
     </body>
     <script src="./api.js"></script>
