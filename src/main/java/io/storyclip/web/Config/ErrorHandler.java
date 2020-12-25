@@ -103,4 +103,18 @@ public class ErrorHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
     }
 
+    // 서버 에러
+    @ExceptionHandler(Exception.class)
+    ResponseEntity<Result> ServerError(Exception e) {
+
+        // System.out.println(e.getMessage());
+        // 위 코드로 에러 메세지 읽을 수 있음. 필요시 에러 메세지 읽어서 사용할 것.
+        // 2020-12-25 hw kim
+
+        Result result = new Result();
+        result.setSuccess(false);
+        result.setMessage(Http.SERVER_ERROR);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result);
+    }
+
 }
