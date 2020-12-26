@@ -23,7 +23,7 @@ public class WebConfig implements WebMvcConfigurer {
         "/", "/status",
         "/account/signup-check/email",
         "/account/signup",
-        "/account/signin",
+        "/auth/signin",
         "/auth/refresh",
         "/auth/verify"
     };

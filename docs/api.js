@@ -150,13 +150,20 @@ query({
                     type: "String",
                     description: "비밀번호"
                 },
+                {
+                    name: "recaptchaToken",
+                    required: true,
+                    type: "String",
+                    description: "구글 리캡챠 토큰"
+                },
             ],
             request: `query({
     url: "/account/signin",
     method: "POST",
     data: {
         "email": "test@test.com",
-        "password": "1234"
+        "password": "1234",
+        "recaptchaToken": String
     },
 })
 .then((res) => {

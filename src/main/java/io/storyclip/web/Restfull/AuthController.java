@@ -2,7 +2,9 @@ package io.storyclip.web.Restfull;
 
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import io.storyclip.web.Common.JWTManager;
+import io.storyclip.web.Common.Recaptcha;
 import io.storyclip.web.Common.UserAgentParser;
+import io.storyclip.web.Common.UserManager;
 import io.storyclip.web.Entity.Result;
 import io.storyclip.web.Entity.Token;
 import io.storyclip.web.Entity.User;
@@ -13,7 +15,9 @@ import io.storyclip.web.Type.Auth;
 import io.storyclip.web.Type.Http;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.beans.ConstructorProperties;
+import java.util.Date;
 import java.util.HashMap;
 
 @RestController
