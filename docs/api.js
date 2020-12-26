@@ -267,7 +267,7 @@ query({
             description: "refresh_token으로 access_token을 재발급 받습니다.",
             params: [
                 {
-                    name: "refresh",
+                    name: "refreshToken",
                     required: true,
                     type: "String",
                     description: "JWT 발급시 전달 받은 refresh_token"
@@ -277,7 +277,7 @@ query({
     url: "/auth/refresh",
     method: "PUT",
     data: {
-        requestToken: String
+        refreshToken: String
     }
 })
 .then((res) => {
