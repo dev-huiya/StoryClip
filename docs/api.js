@@ -130,8 +130,10 @@ query({
                 ],
             }
         },
+    ],
+    "인증": [
         {
-            url: "/account/signin",
+            url: "/auth/signin",
             method: "POST",
             title: "로그인",
             description: `입력받은 사용자 정보로 로그인하고 JWT 토큰을 발급받습니다.`,
@@ -203,8 +205,54 @@ query({
                 ],
             }
         },
-    ],
-    "인증": [
+        {
+            url: "/auth/signout",
+            method: "GET",
+            title: "로그아웃",
+            description: "로그아웃하고 토큰을 폐기합니다.",
+            headers: [
+                {
+                    name: "Authorization",
+                    required: true,
+                    description: "JWT Token",
+                },
+            ],
+            request: `query({
+    url: "/auth/signout",
+    method: "GET",
+})
+.then((res) => {
+    console.log(res);
+})`,
+            response: {
+                success: `HTTP/1.1 200 OK
+
+{
+    "success": true,
+    "message": "OK",
+    "resultData": {
+        "signout": true
+    }
+}`,
+                fail: [
+                    `HTTP/1.1 401 Unauthorized
+
+{
+    "success": false,
+    "message": "AUTH_REQURED",
+    "resultData": null
+}`,
+                ],
+                params: [
+                    {
+                        name: "signout",
+                        always: true,
+                        type: "Boolean",
+                        description: "폐기 성공 여부"
+                    },
+                ],
+            }
+        },
         {
             url: "/auth/refresh",
             method: "PUT",

@@ -31,6 +31,8 @@ import java.util.HashMap;
 @Component
 public class JWTManager {
 
+    private static final String HEADER_TOKEN_KEY = "Bearer ";
+
     // Autowired 대신 추천되는 의존성 주입 방식
     private static TokenRepository TokenRepo;
     public JWTManager(TokenRepository TokenRepo) {
@@ -127,7 +129,7 @@ public class JWTManager {
      */
     public static DecodedJWT verify(String token) throws Exception {
 
-        Token savedToken = TokenRepo.getTokenByToken(token.replace("Bearer ", ""));
+        Token savedToken = TokenRepo.getTokenByToken(token.replace(HEADER_TOKEN_KEY, ""));
         if(savedToken == null) {
             // 디비에 저장된 키가 없으면 만료로 판정
             throw new TokenExpiredException(null);
@@ -185,7 +187,7 @@ public class JWTManager {
             throw new AuthRequiredException("Required token");
         }
 
-        Claim jws = verify(token.replace("Bearer ", "")).getClaim("info");
+        Claim jws = verify(token.replace(HEADER_TOKEN_KEY, "")).getClaim("info");
         if(jws != null) {
             info = (HashMap<String, Object>) jws.asMap();
             info.put("id", Integer.parseInt(AES256Util.decrypt((String) info.get("id"))));
