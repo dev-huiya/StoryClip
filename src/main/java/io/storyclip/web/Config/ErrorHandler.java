@@ -108,6 +108,7 @@ public class ErrorHandler {
     @ExceptionHandler(Exception.class)
     ResponseEntity<Result> ServerError(Exception e) {
 
+        e.printStackTrace();
         // System.out.println(e.getMessage());
         // 위 코드로 에러 메세지 읽을 수 있음. 필요시 에러 메세지 읽어서 사용할 것.
         // 2020-12-25 hw kim

@@ -9,10 +9,14 @@ import javax.servlet.http.HttpServletResponse;
 
 public class JwtAuthInterceptor implements HandlerInterceptor {
 
-    private String HEADER_TOKEN_KEY = "Bearer ";
+    private static final String HEADER_TOKEN_KEY = "Bearer ";
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+
+        if(request.getMethod().equals("OPTIONS")) {
+            return true;
+        }
 
         String token = request.getHeader("Authorization");
         if(token == null) {
