@@ -426,15 +426,15 @@ query({
     "이미지": [
         {
             url: "/images/{hash}",
-            method: "GET",
+            method: "ALL",
             urls: [
                 {
                     url: "/{hash}",
-                    method: "GET"
+                    method: "ALL"
                 },
                 {
                     url: "/images/{hash}",
-                    method: "GET"
+                    method: "ALL"
                 }
             ],
             title: "이미지",
@@ -482,15 +482,15 @@ query({
     "기타": [
         {
             url: "/",
-            method: "GET",
+            method: "ALL",
             urls: [
                 {
                     url: "/",
-                    method: "GET"
+                    method: "ALL"
                 },
                 {
                     url: "/status",
-                    method: "GET"
+                    method: "ALL"
                 }
             ],
             title: "서버 정보",

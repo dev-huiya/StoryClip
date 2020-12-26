@@ -12,6 +12,7 @@ import io.storyclip.web.Type.Auth;
 import io.storyclip.web.Type.Http;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -48,6 +49,15 @@ public class ErrorHandler {
         result.setSuccess(false);
         result.setMessage(Http.NOT_FOUND);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
+    }
+
+    // 405 Method Not Allowed
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<Result> MethodNotAllowed() {
+        Result result = new Result();
+        result.setSuccess(false);
+        result.setMessage(Http.METHOD_NOT_ALLOWED);
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(result);
     }
 
     // 401 토큰 없음 오류

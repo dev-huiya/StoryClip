@@ -70,6 +70,11 @@ const errorCodes = [
         description: "404 Not found"
     },
     {
+        name: "METHOD_NOT_ALLOWED",
+        type: "Http",
+        description: "405 Method Not Allowed"
+    },
+    {
         name: "SERVER_ERROR",
         type: "Http",
         description: "500 Server error"
