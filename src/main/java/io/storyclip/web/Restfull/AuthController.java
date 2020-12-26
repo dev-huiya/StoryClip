@@ -169,7 +169,7 @@ public class AuthController {
         return result;
     }
 
-    @GetMapping("/signout")
+    @DeleteMapping("/signout")
     public Result disposalToken(@RequestHeader(value = "Authorization") String token) {
         Result result = new Result();
 

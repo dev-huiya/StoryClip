@@ -214,7 +214,7 @@ query({
         },
         {
             url: "/auth/signout",
-            method: "GET",
+            method: "DELETE",
             title: "로그아웃",
             description: "로그아웃하고 토큰을 폐기합니다.",
             headers: [
