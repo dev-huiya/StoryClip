@@ -17,6 +17,11 @@ public enum Http {
     NOT_FOUND,
 
     /**
+     * 405 Method Not Allowed
+     */
+    METHOD_NOT_ALLOWED,
+
+    /**
      * 500 Server error
      */
     SERVER_ERROR,

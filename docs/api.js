@@ -130,8 +130,10 @@ query({
                 ],
             }
         },
+    ],
+    "인증": [
         {
-            url: "/account/signin",
+            url: "/auth/signin",
             method: "POST",
             title: "로그인",
             description: `입력받은 사용자 정보로 로그인하고 JWT 토큰을 발급받습니다.`,
@@ -148,13 +150,20 @@ query({
                     type: "String",
                     description: "비밀번호"
                 },
+                {
+                    name: "recaptchaToken",
+                    required: true,
+                    type: "String",
+                    description: "구글 리캡챠 토큰"
+                },
             ],
             request: `query({
     url: "/account/signin",
     method: "POST",
     data: {
         "email": "test@test.com",
-        "password": "1234"
+        "password": "1234",
+        "recaptchaToken": String
     },
 })
 .then((res) => {
@@ -203,8 +212,54 @@ query({
                 ],
             }
         },
-    ],
-    "인증": [
+        {
+            url: "/auth/signout",
+            method: "DELETE",
+            title: "로그아웃",
+            description: "로그아웃하고 토큰을 폐기합니다.",
+            headers: [
+                {
+                    name: "Authorization",
+                    required: true,
+                    description: "JWT Token",
+                },
+            ],
+            request: `query({
+    url: "/auth/signout",
+    method: "GET",
+})
+.then((res) => {
+    console.log(res);
+})`,
+            response: {
+                success: `HTTP/1.1 200 OK
+
+{
+    "success": true,
+    "message": "OK",
+    "resultData": {
+        "signout": true
+    }
+}`,
+                fail: [
+                    `HTTP/1.1 401 Unauthorized
+
+{
+    "success": false,
+    "message": "AUTH_REQURED",
+    "resultData": null
+}`,
+                ],
+                params: [
+                    {
+                        name: "signout",
+                        always: true,
+                        type: "Boolean",
+                        description: "폐기 성공 여부"
+                    },
+                ],
+            }
+        },
         {
             url: "/auth/refresh",
             method: "PUT",
@@ -212,7 +267,7 @@ query({
             description: "refresh_token으로 access_token을 재발급 받습니다.",
             params: [
                 {
-                    name: "refresh",
+                    name: "refreshToken",
                     required: true,
                     type: "String",
                     description: "JWT 발급시 전달 받은 refresh_token"
@@ -222,7 +277,7 @@ query({
     url: "/auth/refresh",
     method: "PUT",
     data: {
-        requestToken: String
+        refreshToken: String
     }
 })
 .then((res) => {
@@ -371,15 +426,15 @@ query({
     "이미지": [
         {
             url: "/images/{hash}",
-            method: "GET",
+            method: "ALL",
             urls: [
                 {
                     url: "/{hash}",
-                    method: "GET"
+                    method: "ALL"
                 },
                 {
                     url: "/images/{hash}",
-                    method: "GET"
+                    method: "ALL"
                 }
             ],
             title: "이미지",
@@ -427,15 +482,15 @@ query({
     "기타": [
         {
             url: "/",
-            method: "GET",
+            method: "ALL",
             urls: [
                 {
                     url: "/",
-                    method: "GET"
+                    method: "ALL"
                 },
                 {
                     url: "/status",
-                    method: "GET"
+                    method: "ALL"
                 }
             ],
             title: "서버 정보",

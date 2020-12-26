@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class Recaptcha {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static final Logger logger = LoggerFactory.getLogger(FileManager.class.getClass());
 
     private static String secretKey;
     @Value("${storyClip.recaptcha-secret-key}")
@@ -25,7 +25,7 @@ public class Recaptcha {
      * @param recaptchaToken
      * @return
      */
-    public boolean verify(String recaptchaToken) {
+    public static boolean verify(String recaptchaToken) {
         try {
             HttpResponse<JsonNode> request = Unirest.post("https://www.google.com/recaptcha/api/siteverify")
                     .field("secret", secretKey)

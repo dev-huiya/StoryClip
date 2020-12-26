@@ -19,7 +19,7 @@ public interface TokenRepository extends JpaRepository<Token, String> {
 
     @Modifying
     @Transactional
-    @Query(value="DELETE FROM Token WHERE refreshToken = :refreshToken")
+    @Query(value="DELETE FROM Token WHERE token = :token")
     @CacheEvict("tokenKey")
-    public void deleteByRefreshToken(String refreshToken);
+    public void deleteByToken(String token);
 }

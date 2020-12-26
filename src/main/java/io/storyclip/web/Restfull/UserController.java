@@ -2,19 +2,15 @@ package io.storyclip.web.Restfull;
 
 import io.storyclip.web.Common.*;
 import io.storyclip.web.Entity.Result;
-import io.storyclip.web.Entity.Token;
 import io.storyclip.web.Entity.User;
 import io.storyclip.web.Repository.UserRepository;
 import io.storyclip.web.Type.Auth;
 import io.storyclip.web.Type.Type;
 import io.storyclip.web.Encrypt.SHA256Util;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import java.util.Date;
 import java.util.HashMap;
 
 @RestController
@@ -105,47 +101,6 @@ public class UserController {
         hashMap.put("join", true);
         result.setResult(hashMap);
 
-        return result;
-    }
-
-    @RequestMapping(value="/signin", method= RequestMethod.POST)
-    public Result login(@Valid @RequestBody User RequestUser, BindingResult bindingResult, HttpServletRequest request) {
-        Result result = new Result();
-
-        // TODO: Auth 컨트롤러로 기능 이전하고 캡챠 인증기능 추가할것.
-
-        if(bindingResult.hasErrors()){
-            result.setSuccess(false);
-            result.setMessage(Auth.AUTH_WRONG);
-            return result;
-        }
-
-        User user = UserManager.getUserbyEmailAndPassword(RequestUser.getEmail(), RequestUser.getPassword());
-        // 솔트 찾아서 해당 비밀번호로 조회
-
-        if(user == null) {
-            result.setSuccess(false);
-            result.setMessage(Auth.AUTH_WRONG);
-            return result;
-        }
-
-        user.setLastDate(new Date());
-        user = UserRepo.save(user);
-
-        result.setSuccess(true);
-        result.setMessage(Auth.OK);
-
-        Token token = JWTManager.create(user, UserAgentParser.getUserAgent(request), true);
-
-        if(token == null) {
-            // 토큰이 생성되지 못했음.
-            result.setSuccess(false);
-            result.setMessage(Auth.JWT_ERROR);
-            result.setResult(null);
-            return result;
-        }
-
-        result.setResult(token);
         return result;
     }
 
