@@ -156,6 +156,14 @@ query({
                     type: "String",
                     description: "구글 리캡챠 토큰"
                 },
+                {
+                    name: "autoLogin",
+                    required: false,
+                    type: "Boolean",
+                    description: "자동로그인 여부",
+                    default: "false"
+                    // TODO: 추후에는 기본값을 UI에 표시해야함
+                },
             ],
             request: `query({
     url: "/account/signin",

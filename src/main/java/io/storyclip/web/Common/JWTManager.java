@@ -69,6 +69,17 @@ public class JWTManager {
             cal.add(Calendar.DATE, 1);
             Date accessExpireDate = cal.getTime();
 
+            // 토큰에 넣을 유저 정보 준비
+            HashMap<String, Object> userInfo = new HashMap<>();
+            userInfo.put("id", AES256Util.encrypt(Integer.toString(user.getUserId())));
+            userInfo.put("email", user.getEmail());
+            userInfo.put("penName", user.getPenName());
+            userInfo.put("lastDate",
+                    user.getLastDate() instanceof Timestamp
+                            ? new Date(user.getLastDate().getTime())
+                            : user.getLastDate());
+            userInfo.put("profile", user.getProfile());
+
             if(isAutoLogin) {
                 // 자동 로그인이 켜져있으면 refresh_token 발급
 
@@ -77,20 +88,9 @@ public class JWTManager {
                 cal.add(Calendar.DATE, 7);
                 refreshExpireDate = cal.getTime();
                 refreshToken = createRefreshToken();
+                userInfo.put("refreshToken", refreshToken);
+                userInfo.put("refreshExpireDate", refreshExpireDate);
             }
-
-            // 토큰에 넣을 유저 정보 준비
-            HashMap<String, Object> userInfo = new HashMap<>();
-            userInfo.put("id", AES256Util.encrypt(Integer.toString(user.getUserId())));
-            userInfo.put("email", user.getEmail());
-            userInfo.put("penName", user.getPenName());
-            userInfo.put("lastDate",
-                    user.getLastDate() instanceof Timestamp
-                        ? new Date(user.getLastDate().getTime())
-                        : user.getLastDate());
-            userInfo.put("profile", user.getProfile());
-            userInfo.put("refreshToken", refreshToken);
-            userInfo.put("refreshExpireDate", refreshExpireDate);
 
             // 토큰 생성
             Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) rsa.getPublicKey(), (RSAPrivateKey) rsa.getPrivateKey());

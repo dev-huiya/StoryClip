@@ -120,6 +120,7 @@ public class AuthController {
         String email = (String) param.get("email");
         String password = (String) param.get("password");
         String recaptchaToken = (String) param.get("recaptchaToken");
+        Boolean autoLogin = param.containsKey("autoLogin") ? (Boolean) param.get("autoLogin") : false;
 
         if(email == null || password == null) {
             result.setSuccess(false);
@@ -155,7 +156,7 @@ public class AuthController {
         result.setSuccess(true);
         result.setMessage(Auth.OK);
 
-        Token token = JWTManager.create(user, UserAgentParser.getUserAgent(request), true);
+        Token token = JWTManager.create(user, UserAgentParser.getUserAgent(request), autoLogin);
 
         if(token == null) {
             // 토큰이 생성되지 못했음.
