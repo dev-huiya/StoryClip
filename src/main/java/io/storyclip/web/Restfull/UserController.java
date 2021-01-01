@@ -23,7 +23,7 @@ public class UserController {
         this.UserRepo = UserRepo;
     }
 
-    @RequestMapping(value="/signup-check/email", method= RequestMethod.GET)
+    @GetMapping(value="/signup-check/email")
     public Result emailCheck(@RequestParam(required = false) String email) {
         Result result = new Result();
 
@@ -37,7 +37,7 @@ public class UserController {
         return result;
     }
 
-    @RequestMapping(value="/signup", method= RequestMethod.POST)
+    @PostMapping(value="/signup")
     public Result join(
         @RequestPart @RequestParam(required = false) MultipartFile profile,
         @RequestParam(required = false) String email,
