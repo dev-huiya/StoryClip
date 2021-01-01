@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### 개발 서버 파일 업로드 경로 ###
+/FILES

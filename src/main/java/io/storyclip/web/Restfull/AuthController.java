@@ -73,8 +73,6 @@ public class AuthController {
         return result;
     }
 
-    // TODO: logout으로 토큰 폐기하는 API 필요함.
-
     @GetMapping(value="/verify")
     public Result verifyToken(@RequestHeader(required = false, value = "Authorization") String token) throws Exception {
         Result result = new Result();
