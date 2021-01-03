@@ -2,10 +2,13 @@ package io.storyclip.web.Restfull;
 
 import io.storyclip.web.Common.*;
 import io.storyclip.web.Entity.Result;
+import io.storyclip.web.Entity.Token;
 import io.storyclip.web.Entity.User;
 import io.storyclip.web.Repository.UserRepository;
 import io.storyclip.web.Type.Auth;
 import io.storyclip.web.Type.Type;
+import io.storyclip.web.Encrypt.AES256Util;
+import io.storyclip.web.Encrypt.RSAUtils;
 import io.storyclip.web.Encrypt.SHA256Util;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -105,18 +108,54 @@ public class UserController {
     }
 
     // TODO: login에 RSA 키 발급 기능 추가: private key를 aes로 암호화해 넘겼다가 돌아올때 검증
-
-    // ############################# 이 밑은 테스트 코드
-
-    @RequestMapping(value="/test")
-    public Result test(HttpServletRequest req) {
-        Result result = new Result();
-
-        result.setSuccess(true);
-        result.setMessage(Type.OK);
-
-        result.setResult(UserAgentParser.getUserAgent(req));
-        return result;
+    
+    @GetMapping(value="/info")
+    public Result signLook(@RequestHeader(value = "Authorization") String token) throws Exception {
+    	Result result = new Result();
+    	
+		HashMap<String, Object> info = JWTManager.read(token);
+		User user = UserRepo.findUserByUserId((Integer) info.get("id"));
+		
+		result.setSuccess(true);
+		result.setMessage(Type.OK);
+		result.setResult(user);
+		
+		return result;
+	}
+    
+    @PatchMapping(value="/info")
+    public Result signInfo(
+		@RequestHeader(value = "Authorization") String token,
+		@RequestPart @RequestParam(required = false) MultipartFile profile,
+        @RequestParam(required = false) String penName
+    ) throws Exception {
+    	Result result = new Result();
+    	
+    	//토큰 아이디 확인
+    	HashMap<String, Object> info = JWTManager.read(token);
+		User user = UserRepo.findUserByUserId((Integer) info.get("id"));
+		
+		// 필명 업데이트
+		if(penName != null){
+			user.setPenName(penName);		
+		};
+		
+		// 프로필 넣기
+		if(profile != null) {
+            String hash = FileManager.save(user.getUserId(), profile);
+            user.setProfile(hash);
+        }
+		
+		UserRepo.save(user);
+		
+		result.setSuccess(true);
+	    result.setMessage(Type.OK);
+	    
+	    HashMap<String, Object> hashMap = new HashMap<>();
+        hashMap.put("update", true);
+        result.setResult(hashMap);
+	    
+		return result;
     }
-
+    
 }
