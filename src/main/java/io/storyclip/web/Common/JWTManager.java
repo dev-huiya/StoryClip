@@ -72,13 +72,13 @@ public class JWTManager {
             // 토큰에 넣을 유저 정보 준비
             HashMap<String, Object> userInfo = new HashMap<>();
             userInfo.put("id", AES256Util.encrypt(Integer.toString(user.getUserId())));
-            userInfo.put("email", user.getEmail());
-            userInfo.put("penName", user.getPenName());
-            userInfo.put("lastDate",
-                    user.getLastDate() instanceof Timestamp
-                            ? new Date(user.getLastDate().getTime())
-                            : user.getLastDate());
-            userInfo.put("profile", user.getProfile());
+//            userInfo.put("email", user.getEmail());
+//            userInfo.put("penName", user.getPenName());
+//            userInfo.put("lastDate",
+//                    user.getLastDate() instanceof Timestamp
+//                            ? new Date(user.getLastDate().getTime())
+//                            : user.getLastDate());
+//            userInfo.put("profile", user.getProfile());
 
             if(isAutoLogin) {
                 // 자동 로그인이 켜져있으면 refresh_token 발급
