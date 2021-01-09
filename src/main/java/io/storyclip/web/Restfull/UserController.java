@@ -2,18 +2,14 @@ package io.storyclip.web.Restfull;
 
 import io.storyclip.web.Common.*;
 import io.storyclip.web.Entity.Result;
-import io.storyclip.web.Entity.Token;
 import io.storyclip.web.Entity.User;
 import io.storyclip.web.Repository.UserRepository;
 import io.storyclip.web.Type.Auth;
 import io.storyclip.web.Type.Type;
-import io.storyclip.web.Encrypt.AES256Util;
-import io.storyclip.web.Encrypt.RSAUtils;
 import io.storyclip.web.Encrypt.SHA256Util;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 
 @RestController
@@ -80,7 +76,7 @@ public class UserController {
         }
     
         // 솔트 넣는건 수동임
-        String salt = SHA256Util.createSalt(32);
+        String salt = Common.createSecureRandom(32);
 
         // 유저 생성
         User user = new User();

@@ -119,6 +119,7 @@ public class AuthController {
         String password = (String) param.get("password");
         String recaptchaToken = (String) param.get("recaptchaToken");
         Boolean autoLogin = param.containsKey("autoLogin") ? (Boolean) param.get("autoLogin") : false;
+        // 원래라면 containsKey 함수가 필요 없지만 true false 처리를 해주기 위해 사용했음.
 
         if(email == null || password == null) {
             result.setSuccess(false);
