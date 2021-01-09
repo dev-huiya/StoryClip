@@ -112,7 +112,7 @@ public class AuthController {
     }
 
     @PostMapping(value="/signin")
-    public Result login(@RequestBody HashMap<String, Object> param, HttpServletRequest request) {
+    public Result login(@RequestBody HashMap<String, Object> param, HttpServletRequest request) throws Exception {
         Result result = new Result();
 
         String email = (String) param.get("email");
@@ -122,9 +122,7 @@ public class AuthController {
         // 원래라면 containsKey 함수가 필요 없지만 true false 처리를 해주기 위해 사용했음.
 
         if(email == null || password == null) {
-            result.setSuccess(false);
-            result.setMessage(Http.PARAM_REQUIRED);
-            return result;
+            throw new ParamRequiredException(null);
         }
 
         if(recaptchaToken == null) {

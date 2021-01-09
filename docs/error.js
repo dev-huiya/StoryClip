@@ -55,6 +55,11 @@ const errorCodes = [
         description: "캡챠 인증 실패"
     },
     {
+        name: "PASSWORD_CHANGE_FAIL",
+        type: "Auth",
+        description: "입력된 패스워드가 맞지 않습니다"
+    },
+    {
         name: "PARAM_REQUIRED",
         type: "Http",
         description: "필수값 누락됨"

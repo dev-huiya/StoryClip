@@ -14,11 +14,11 @@ const apis = {
                 },
             ],
             request: `query({
-    url: '/account/signup-check/email',
-    method: 'GET',
-    data: {
-        email: 'test@test.com'
-    }
+	url: '/account/signup-check/email',
+	method: 'GET',
+	data: {
+	    email: 'test@test.com'
+	}
 }).then(res=>{
     console.log(res)
 })`,
@@ -26,11 +26,11 @@ const apis = {
                 success: `HTTP/1.1 200 OK
 
 {
-    "success": true,
-    "message": "OK",
-    "resultData": {
-        "usage": true | false
-    }
+	"success": true,
+	"message": "OK",
+	"resultData": {
+	    "usage": true | false
+}
 }`,
                 fail: [``],
                 params: [
@@ -130,6 +130,201 @@ query({
                 ],
             }
         },
+        {
+            url: "/account/info",
+            method: "GET",
+            title: "회원 정보 조회",
+            description: "회원정보를 조회합니다.",
+            request: `query({
+    url: '/account/info',
+    method: 'GET'
+}).then(res=>{
+    console.log(res)
+})`,
+			
+            response: {
+                success: `HTTP/1.1 200 OK
+
+{
+   "success": true,
+    "message": "OK",
+    "resultData": {
+        "email": "test@test.com",
+        "createDate": "2020-12-22 22:35:47.097",
+        "lastDate": "2021-01-09 01:43:25.000",
+        "penName": "테스",
+        "profile": "59a82d9ed6a21d5731b5a94db32a990deced4a709d3d26b35fa4ec1f34b0bdcb",
+        "kakaoAccountId": null
+    }
+}`,
+                	fail: [ ``, ],
+                params: [
+                    {
+                        name: "email",
+                        always: true,
+                        type: "String",
+                        description: "이메일"
+                    },
+                    {
+                        name: "createDate",
+                        always: true,
+                        type: "String",
+                        description: "최초 생성 날짜"
+                    },
+                    {
+                        name: "lastDate",
+                        always: true,
+                        type: "String",
+                        description: "마지막 접속 날짜"
+                    },
+                    {
+                        name: "penName",
+                        always: true,
+                        type: "String",
+                        description: "필명"
+                    },
+                    {
+                        name: "profile",
+                        always: true,
+                        type: "File",
+                        description: "프로필 사진"
+                    },
+                    {
+                        name: "kakaoAccountId",
+                        always: true,
+                        type: "file",
+                        description: "카카오 아이디"
+                    }
+                ],
+            }
+        },
+        {
+            url: "/account/info(PACTH)",
+            method: "PATCH",
+            title: "회원 정보 수정",
+            description: "회원정보를 수정합니다.",
+            request: `const formData = new FormData();
+formData.append('penName', String);
+formData.append('profile', File);
+		
+query({
+    url: "/account/info",
+    method: "PATCH"
+})
+.then((res) => {
+    console.log(res);
+})`,
+		info: [
+        {
+            type: 'error',
+            message : '프로필 이미지 업로드를 위해 multipart/form-data 형식으로 전달되어야 합니다.'
+        }
+    ],
+    params: [
+		        {
+		            name: "Authorization",
+		            required: true,
+		            type: "",
+		            description: "JWT Token"
+		        },
+		    ],
+            response: {
+                success:`HTTP/1.1 200 OK
+
+{
+    "success": true,
+    "message": "OK",
+    "resultData": {
+        "update": true
+    }
+}`,
+				fail: [ `HTTP/1.1 401 Unauthorized
+
+{
+    "success": false,
+    "message": "AUTH_REQURED" | "JWT_EXPIRED_ERROR",
+    "resultData": null
+}`, ],
+                params: [
+                    {
+                        name: "update",
+                        always: true,
+                        type: "Boolean",
+                        description: "회원정보 수정 성공 여부"
+                    }
+                ],
+            }
+        },
+        {
+            url: "/account/password",
+            method: "PATCH",
+            title: "비밀번호 수정",
+            description: "비밀번호를 수정합니다.",
+            request: `query({
+    url: '/account/password',
+    method: 'PATCH',
+    data: {
+        "password": "1234",
+        "newPassword": "test"
+    },
+}).then(res=>{
+    console.log(res)
+})`, 
+params: [
+	{
+		name: "Authorization",
+		required: true,
+		type: "",
+		description: "JWT Token"
+	},
+	{
+        name: "password",
+        always: true,
+        type: "String",
+        description: "현재 사용 비밀번호"
+    },
+    {
+        name: "newPassword",
+        always: true,
+        type: "String",
+        description: "변경할 비밀번호"
+    }
+],
+			
+            response: {
+                success: `HTTP/1.1 200 OK
+
+{
+    "success": true,
+    "message": "OK",
+    "resultData": {
+        "update": true
+    }
+}`,
+            	fail: [ `HTTP/1.1 401 Unauthorized
+
+{
+    "success": false,
+    "message": "AUTH_REQURED" | "JWT_EXPIRED_ERROR",
+    "resultData": null
+}`,
+`HTTP/1.1 200 OK
+
+{
+    "success": false,
+    "message": "PARAM_REQUIRED" | "PASSWORD_CHANGE_FAIL",
+    "resultData": null
+}`],
+            	params: [
+                    {
+                        name: "update",
+                        always: true,
+                        type: "Boolean",
+                        description: "비밀번호 변경 성공 여부"
+                    }
+                ],
+            }
+        }
     ],
     "인증": [
         {
@@ -177,17 +372,15 @@ query({
 .then((res) => {
     console.log(res)
 }`,
-            response: {
-                success: `HTTP/1.1 200 OK
+response: {
+success: `HTTP/1.1 200 OK
 
 {
-    "success": true,
-    "message": "OK",
-    "resultData": {
-        "token": "eyJ0eXAiOiJKV1QiLCJhbG...",
-        "browser": "Windows 10 / Chrome 87",
-        "publicKey": "-----BEGIN PUBLIC KEY-----\\nMIIBIjANBgkqhkiG9w0BAQ...pDSQIDAQAB\\n-----END PUBLIC KEY-----\\n"
-    }
+	"success": true,
+	"message": "OK",
+	"resultData": {
+		"usage": true | false
+	}
 }`,
                 fail: [
                     `HTTP/1.1 200 OK
@@ -200,23 +393,11 @@ query({
                 ],
                 params: [
                     {
-                        name: "token",
+                        name: "usage",
                         always: true,
-                        type: "String",
-                        description: "엑세스 토큰"
-                    },
-                    {
-                        name: "browser",
-                        always: true,
-                        type: "String",
-                        description: "접속한 브라우저 정보"
-                    },
-                    {
-                        name: "publicKey",
-                        always: true,
-                        type: "String",
-                        description: "토큰 검증에 사용하는 공개키"
-                    },
+                        type: "Boolean",
+                        description: "성공여부"
+                    }
                 ],
             }
         },

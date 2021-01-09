@@ -3,6 +3,7 @@ package io.storyclip.web.Restfull;
 import io.storyclip.web.Common.*;
 import io.storyclip.web.Entity.Result;
 import io.storyclip.web.Entity.User;
+import io.storyclip.web.Exception.ParamRequiredException;
 import io.storyclip.web.Repository.UserRepository;
 import io.storyclip.web.Type.Auth;
 import io.storyclip.web.Type.Type;
@@ -43,21 +44,13 @@ public class UserController {
         @RequestParam(required = false) String password,
         @RequestParam(required = false) String penName,
         @RequestParam(required = false) String recaptchaToken
-    ) {
+    ) throws Exception {
         Result result = new Result();
 
         // validation 엔티티에 포함되지 않는 토큰이나 이런 것 때문에 @valid 어노테이션 사용안했음
         // hw.kim 2020-12-19 10:24
         if(email == null || password == null){
-            result.setSuccess(false);
-            result.setMessage(Auth.AUTH_WRONG);
-            return result;
-        }
-
-        if(recaptchaToken == null) {
-            result.setSuccess(false);
-            result.setMessage(Auth.CAPTCHA_EMPTY);
-            return result;
+        	throw new ParamRequiredException(null);
         }
 
         // 리캡챠 검증
@@ -154,4 +147,44 @@ public class UserController {
 		return result;
     }
     
+    @PatchMapping(value="/password")
+    public Result newPasword(
+		@RequestHeader(value = "Authorization") String token,
+		@RequestBody HashMap<String, Object> param,
+		HttpServletRequest request
+    ) throws Exception {
+    	Result result = new Result();
+    	
+    	HashMap<String, Object> info = JWTManager.read(token);
+    	User user = UserRepo.findUserByUserId((Integer) info.get("id"));
+    	
+    	String password = (String) param.get("password");
+    	String newPassword = (String) param.get("newPassword");
+    	
+    	if(password == null || newPassword == null) {
+    		throw new ParamRequiredException(null);
+    	}
+    	
+    	String salt = user.getSalt();
+    	String email = user.getEmail();
+    	String nowPassword = (SHA256Util.encrypt(salt + password));
+    	User userinfo = UserRepo.getUserByEmailAndPassword(email, nowPassword);
+    	if(userinfo == null) {
+    		result.setSuccess(false);
+            result.setMessage(Auth.PASSWORD_CHANGE_FAIL);
+            return result;
+    	}
+    	
+    	String newSalt = SHA256Util.createSalt(32);
+    	userinfo.setSalt(newSalt);
+    	userinfo.setPassword(SHA256Util.encrypt(newSalt + newPassword));
+    	
+    	UserRepo.save(userinfo);
+
+    	result.setSuccess(true); 
+    	result.setMessage(Type.OK); 
+    	HashMap<String, Object> hashMap = new HashMap<>(); hashMap.put("update", true);
+		result.setResult(hashMap);
+		return result;
+    }
 }
