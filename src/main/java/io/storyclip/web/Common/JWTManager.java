@@ -8,7 +8,6 @@ import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import io.storyclip.web.Encrypt.AES256Util;
 import io.storyclip.web.Encrypt.RSAUtils;
-import io.storyclip.web.Encrypt.SHA256Util;
 import io.storyclip.web.Entity.Token;
 import io.storyclip.web.Entity.User;
 import io.storyclip.web.Exception.AuthRequiredException;
@@ -22,7 +21,6 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
-import java.sql.Timestamp;
 import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
@@ -163,7 +161,7 @@ public class JWTManager {
      * @return 랜덤한 문자열.
      */
     public static String createRefreshToken() {
-        String random = SHA256Util.createSalt(20);
+        String random = Common.createSecureRandom(20);
         Token result = TokenRepo.findTokenByRefreshToken(random);
 
         if(result != null) {
