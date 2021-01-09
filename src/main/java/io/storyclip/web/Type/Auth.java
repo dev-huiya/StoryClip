@@ -60,6 +60,11 @@ public enum Auth {
      * 캡챠 실패
      */
     CAPTCHA_FAIL,
+    
+    /**
+     * 입력된 패스워드가 맞지 않습니다.
+     */
+    PASSWORD_CHANGE_FAIL,
 
     /**
      * 성공

@@ -112,7 +112,7 @@ public class AuthController {
     }
 
     @PostMapping(value="/signin")
-    public Result login(@RequestBody HashMap<String, Object> param, HttpServletRequest request) {
+    public Result login(@RequestBody HashMap<String, Object> param, HttpServletRequest request) throws Exception {
         Result result = new Result();
 
         String email = (String) param.get("email");
@@ -121,9 +121,7 @@ public class AuthController {
         Boolean autoLogin = param.containsKey("autoLogin") ? (Boolean) param.get("autoLogin") : false;
 
         if(email == null || password == null) {
-            result.setSuccess(false);
-            result.setMessage(Http.PARAM_REQUIRED);
-            return result;
+            throw new ParamRequiredException(null);
         }
 
         if(recaptchaToken == null) {
