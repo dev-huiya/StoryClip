@@ -11,6 +11,7 @@ import io.storyclip.web.Encrypt.SHA256Util;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 
 @RestController
@@ -175,7 +176,7 @@ public class UserController {
             return result;
     	}
     	
-    	String newSalt = SHA256Util.createSalt(32);
+    	String newSalt = Common.createSecureRandom(32);
     	userinfo.setSalt(newSalt);
     	userinfo.setPassword(SHA256Util.encrypt(newSalt + newPassword));
     	

@@ -1,6 +1,7 @@
 package io.storyclip.web.Entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,6 +29,7 @@ public class Project {
 
     @Column(nullable = false)
     @NotNull
+    @JsonIgnore
     private Integer userId;
 
     @Column(length = 255)

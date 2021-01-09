@@ -48,9 +48,7 @@ public class AuthController {
         Token token = TokenRepo.findTokenByRefreshToken(refreshToken);
 
         if(token == null) {
-            result.setSuccess(false);
-            result.setMessage(Auth.JWT_EXPIRED_ERROR); // refresh_token 만료를 뜻함.
-            return result;
+            throw new TokenExpiredException("");
         }
 
         User user = UserRepo.findUserByUserId(token.getUserId());
