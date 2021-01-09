@@ -90,7 +90,7 @@
                 margin-left: 20px;
             }
             .method.patch {
-                background-color: #FF99FF;
+                background-color: #C2A1DA;
                 margin-left: 6px;
             }
             .method.post {
@@ -144,7 +144,7 @@
                 color: #73B1E5;
             }
             content section .left-contents .method.patch {
-                color: #FF99FF;
+                color: #C2A1DA;
             }
             content section .left-contents .method.put {
                 color: #EEA56F;
@@ -422,6 +422,13 @@
             
         </content>
     </body>
+
+    <script src="./user.js"></script>
+    <script src="./auth.js"></script>
+    <script src="./project.js"></script>
+    <script src="./images.js"></script>
+    <script src="./etc.js"></script>
+
     <script src="./api.js"></script>
     <script src="./error.js"></script>
     <script>
@@ -442,7 +449,7 @@
                 const bigMenu = `<div class="menu-title">${big}</div>`;
                 const menu = apis[big].map(api => {
                     return `
-                        <a href="#${api.url}" class="menu-link" target="_self">
+                        <a href="#${api.method}-${api.url}" class="menu-link" target="_self">
                             <span class="method ${api.method}">${api.method}</span>
                             <span class="url">${api.url}</span>
                         </a>
@@ -459,7 +466,7 @@
             let html = Object.keys(apis).map(big => {
                 return apis[big].map(api => {
                     return `
-                    <section id="${api.url}">
+                    <section id="${api.method}-${api.url}">
                         <div class="left-contents">
                             <h2 class="title">${api.title}</h2>
                             ${!api.urls ? 
@@ -549,18 +556,18 @@
                         </div>
                         <div class="right-contents">
                             <div class="button">
-                                <button class="title" data-type="${api.url}" onclick="Show('${api.url}', 'request', this)">Request</button>
-                                <button class="title show" data-type="${api.url}" onclick="Show('${api.url}', 'response', this)">Response</button>
-                                <button class="title" data-type="${api.url}" onclick="Show('${api.url}', 'error', this)">ERROR</button>
+                                <button class="title" data-type="${api.method}-${api.url}" onclick="Show('${api.method}-${api.url}', 'request', this)">Request</button>
+                                <button class="title show" data-type="${api.method}-${api.url}" onclick="Show('${api.method}-${api.url}', 'response', this)">Response</button>
+                                <button class="title" data-type="${api.method}-${api.url}" onclick="Show('${api.method}-${api.url}', 'error', this)">ERROR</button>
                             </div>
 
-                            <div data-url="${api.url}" data-type="request" class="hide">
+                            <div data-url="${api.method}-${api.url}" data-type="request" class="hide">
                                 <pre><code class="javascript">${api.request}</code></pre>
                             </div>
-                            <div data-url="${api.url}" data-type="response" class="show">
+                            <div data-url="${api.method}-${api.url}" data-type="response" class="show">
                                 <pre><code class="http">${api.response.success}</code></pre>
                             </div>
-                            <div data-url="${api.url}" data-type="error" class="hide">
+                            <div data-url="${api.method}-${api.url}" data-type="error" class="hide">
                                 ${api.response.fail.map(fail=>(
                                     `<pre><code class="http">${fail}</code></pre>`
                                 )).join("")}
@@ -597,7 +604,6 @@
         }
 
         const Show = (url, type, _this) => {
-            console.log(_this);
             document.querySelectorAll(`[data-url='${url}']`).forEach(dom=>{
                 dom.removeClass('show');
                 dom.addClass('hide')
