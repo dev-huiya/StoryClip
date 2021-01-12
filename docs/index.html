@@ -212,6 +212,7 @@
                 position: relative;
                 border-radius: 5px;
                 padding: 10px 20px;
+                margin-bottom: 10px;
             }
             div.info-box::before {
                 content: "";
@@ -227,6 +228,12 @@
             }
             div.info-box.error::before {
                 background: #f35555;
+            }
+            div.info-box.info {
+                background: #feffa38a;
+            }
+            div.info-box.info::before {
+                background: #ffe35a;
             }
 
             .params-title {
@@ -489,7 +496,7 @@
                             ${!!api.info
                             ? api.info.map(info=>(
                                 `<div class="info-box ${info.type}">${info.message}</div>`
-                            ))
+                            )).join("")
                             : ""}
                             ${!!api.headers ? (`
                                 <div class="params-title">HTTP 헤더</div>
