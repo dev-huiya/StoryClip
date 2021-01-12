@@ -218,6 +218,10 @@ query({
             {
                 type: 'error',
                 message : '프로필 이미지 업로드를 위해 multipart/form-data 형식으로 전달되어야 합니다.'
+            },
+            {
+                type: 'info',
+                message : '사용자 정보 변경 후에는 GET /account/info를 통해서 사용자 정보를 다시 불러와야 합니다.'
             }
         ],
         params: [
