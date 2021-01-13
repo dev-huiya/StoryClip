@@ -287,13 +287,14 @@ query({
 }).then(res=>{
     console.log(res)
 })`,
-        params: [
+        headers: [
             {
                 name: "Authorization",
                 required: true,
-                type: "",
-                description: "JWT Token"
+                description: "JWT Token",
             },
+        ],
+        params: [
             {
                 name: "password",
                 always: true,
