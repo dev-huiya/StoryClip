@@ -201,7 +201,7 @@ query({
         url: "/account/info",
         method: "PATCH",
         title: "회원 정보 수정",
-        description: "회원정보를 수정합니다.",
+        description: "회원정보를 수정합니다.<br />요청 파라매터 중 하나는 필수적으로 보내야합니다.",
         request: `const formData = new FormData();
 formData.append('penName', String);
 formData.append('profile', File);
@@ -224,12 +224,25 @@ query({
                 message : '사용자 정보 변경 후에는 GET /account/info를 통해서 사용자 정보를 다시 불러와야 합니다.'
             }
         ],
-        params: [
+        headers: [
             {
                 name: "Authorization",
                 required: true,
-                type: "",
-                description: "JWT Token"
+                description: "JWT Token",
+            },
+        ],
+        params: [
+            {
+                name: "penName",
+                required: false,
+                type: "String",
+                description: "필명"
+            },
+            {
+                name: "profile",
+                required: false,
+                type: "File",
+                description: "사용자 프로필 이미지"
             },
         ],
         response: {
