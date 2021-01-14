@@ -96,16 +96,6 @@ const project = [
     {
         url: "/project/list",
         method: "GET",
-        urls: [
-            {
-                url: "/project/list",
-                method: "GET"
-            },
-            {
-                url: "/projects",
-                method: "GET"
-            }
-        ],
         title: "작품 목록",
         description: "작품 목록을 불러오는 API 입니다",
         headers: [
@@ -195,7 +185,7 @@ const project = [
         }
     },
     {
-        url: "/PJ{projectId}",
+        url: "/project/{projectId}",
         method: "GET",
         title: "작품 정보",
         description: "작품 정보를 불러오는 API 입니다",

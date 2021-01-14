@@ -16,7 +16,7 @@ import java.beans.ConstructorProperties;
 import java.util.HashMap;
 
 @RestController
-@RequestMapping(value="/")
+@RequestMapping(value="/project")
 public class ProjectController {
 
     // Autowired 대신 추천되는 의존성 주입 방식
@@ -27,7 +27,7 @@ public class ProjectController {
         this.ProjectRepo = ProjectRepo;
     }
 
-    @PostMapping("/project/new")
+    @PostMapping("/new")
     public Result newProject(
             @RequestHeader(value = "Authorization") String token,
             @RequestBody HashMap<String, Object> param
@@ -56,7 +56,7 @@ public class ProjectController {
         return result;
     }
 
-    @GetMapping(value={"/projects", "/project/list"})
+    @GetMapping(value={"/list"})
     public Result getProjectList(@RequestHeader(value = "Authorization") String token) throws Exception {
         Result result = new Result();
         HashMap<String, Object> info = JWTManager.read(token);
@@ -68,7 +68,7 @@ public class ProjectController {
         return result;
     }
 
-    @GetMapping(value="/PJ{projectId}")
+    @GetMapping(value="/{projectId}")
     public Result getProjectInfo(
             @RequestHeader(value = "Authorization") String token,
             @PathVariable String projectId
