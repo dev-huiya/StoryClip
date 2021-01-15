@@ -54,7 +54,7 @@ jobs:
     
     # 빌드 후 배포
     - name: Deploy at server
-      uses: wangyucode/sftp-upload-action@master
+      uses: wangyucode/sftp-upload-action@main
       with:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USERNAME }}
