@@ -6,8 +6,8 @@ name: Auto Deploy
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
+#   pull_request:
+#     branches: [ main ]
   workflow_dispatch: 
 
 jobs:
@@ -50,10 +50,10 @@ jobs:
     
     - name: Echo PWD
       run: |
-        pwd
+        echo pwd
     
     # 빌드 후 배포
-    - name: File upload at server
+    - name: Deploy at server
       uses: appleboy/scp-action@master
       with:
         host: ${{ secrets.SSH_HOST }}
@@ -61,5 +61,5 @@ jobs:
         password: ${{ secrets.SSH_PASSWORD }}
         port: ${{ secrets.SSH_PORT }}
         source: "target/ROOT.war"
-        target: "/volume1/docker/storyclip-api/webapps/ROOT.war"
-      
+        target: "/docker/storyclip-api/webapps/"
+        overwrite: 'true'
