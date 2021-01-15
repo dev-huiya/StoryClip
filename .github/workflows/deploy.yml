@@ -37,7 +37,6 @@ jobs:
         from_file: 'src/main/resources/application.properties'
         to_file: 'src/main/resources/application.properties'
         commit: 'false'
-
     # 실제 빌드
     - name: Build with Maven
       run: mvn compile war:war
