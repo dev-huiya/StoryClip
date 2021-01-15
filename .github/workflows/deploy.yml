@@ -60,7 +60,6 @@ jobs:
         port: ${{ secrets.SSH_PORT }}
         username: ${{ secrets.SSH_USERNAME }}
         password: ${{ secrets.SSH_PASSWORD }}
-        protocol: 'sftp'
         local-dir: 'target/'
         server-dir: '/docker/storyclip-api/webapps/'
         exclude: |
