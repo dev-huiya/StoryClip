@@ -22,8 +22,8 @@ jobs:
         java-version: 1.8
 
     # 설정파일 설정
-    - uses: franzbischoff/replace_envs@v1
     - name: Set properties
+    - uses: franzbischoff/replace_envs@v1
       env:
         DB_HOST: ${{ secrets.DB_HOST }}
         DB_PORT: ${{ secrets.DB_PORT }}
@@ -37,11 +37,16 @@ jobs:
         from_file: 'src/main/resources/application.properties'
         to_file: 'src/main/resources/application.properties'
         commit: 'false'
+      
+    # 실제 빌드
     - name: Build with Maven
       run: mvn compile war:war
-
-    # 서버에 업로드
-    - uses: actions/checkout@master
+    
+    - name: Echo PWD
+      run: |
+        echo pwd
+    
+    # 빌드 후 배포
     - name: File upload at server
       uses: appleboy/scp-action@master
       with:
@@ -51,3 +56,4 @@ jobs:
         port: ${{ secrets.SSH_PORT }}
         source: "target/ROOT.war"
         target: "/docker/storyclip-api/webapps/"
+      
