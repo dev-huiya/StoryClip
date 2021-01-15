@@ -15,7 +15,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - name: check out main
+      uses: actions/checkout@v2
+      
     - name: Set up JDK 1.8
       uses: actions/setup-java@v1
       with:
@@ -23,7 +25,7 @@ jobs:
 
     # 설정파일 설정
     - name: Set properties
-    - uses: franzbischoff/replace_envs@v1
+      uses: franzbischoff/replace_envs@v1
       env:
         DB_HOST: ${{ secrets.DB_HOST }}
         DB_PORT: ${{ secrets.DB_PORT }}
