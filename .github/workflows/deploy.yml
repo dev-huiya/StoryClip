@@ -54,19 +54,9 @@ jobs:
     
     # 빌드 후 배포
     - name: Deploy at server
-      timeout-minutes: 15
-      uses: SamKirkland/FTP-Deploy-Action@master
+    - uses: actions/action-upload-file@v1
       with:
-        server: ${{ secrets.SSH_HOST }}
-        port: ${{ secrets.SSH_PORT }}
-        username: ${{ secrets.SSH_USERNAME }}
-        password: ${{ secrets.SSH_PASSWORD }}
-        protocol: 'ftps'
-        local-dir: 'target/'
-        server-dir: '/docker/storyclip-api/webapps/'
-        exclude: |
-          - classes
-          - generated*
-          - maven*
-          - ROOT/*
-          - test*
+        host: ${{ secrets.SERVER_HOST }}
+        path: '/deploy.php'
+        filePath: 'target/ROOT.war'
+        data: ${{ toJson(github.event.pull_request) }}
