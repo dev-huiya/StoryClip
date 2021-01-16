@@ -54,7 +54,7 @@ jobs:
     
     # 빌드 후 배포
     - name: Deploy at server
-    - uses: actions/action-upload-file@v1
+      uses: actions/action-upload-file@v1
       with:
         host: ${{ secrets.SERVER_HOST }}
         path: '/deploy.php'
